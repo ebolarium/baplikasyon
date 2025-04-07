@@ -33,10 +33,10 @@ const Dashboard = () => {
     // Configuration defaults exactly as provided
     const defaults = {
       spread: 360,
-      ticks: 50,
+      ticks: 150,
       gravity: 0,
-      decay: 0.94,
-      startVelocity: 30,
+      decay: 0.97,
+      startVelocity: 15,
       shapes: ["star"],
       colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
     };
@@ -58,10 +58,10 @@ const Dashboard = () => {
       });
     }
 
-    // Execute shots at specified intervals
+    // Execute shots at specified intervals with longer delays
     setTimeout(shoot, 0);
-    setTimeout(shoot, 100);
-    setTimeout(shoot, 200);
+    setTimeout(shoot, 300);
+    setTimeout(shoot, 600);
   }, []);
 
   useEffect(() => {
