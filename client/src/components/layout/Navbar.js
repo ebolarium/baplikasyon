@@ -46,7 +46,7 @@ const Navbar = () => {
             Baplikasyon
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 0, alignItems: 'center' }}>
           {isMobile ? (
             <>
               <IconButton
@@ -55,14 +55,21 @@ const Navbar = () => {
                 to="/reports"
                 aria-label="reports"
                 size="large"
+                sx={{ mr: 0.5 }}
               >
                 <AssessmentIcon />
               </IconButton>
+              <Box sx={{ 
+                borderLeft: '1px solid rgba(255, 255, 255, 0.5)', 
+                height: 24, 
+                mx: 0.5 
+              }} />
               <IconButton
                 color="inherit"
                 onClick={handleExportExcel}
                 aria-label="export to excel"
                 size="large"
+                sx={{ ml: 0.5 }}
               >
                 <TableViewIcon />
               </IconButton>
@@ -74,15 +81,20 @@ const Navbar = () => {
                 component={RouterLink}
                 to="/reports"
                 startIcon={<AssessmentIcon />}
-                sx={{ fontWeight: 'medium' }}
+                sx={{ fontWeight: 'medium', mr: 0.5 }}
               >
                 Reports
               </Button>
+              <Box sx={{ 
+                borderLeft: '1px solid rgba(255, 255, 255, 0.5)', 
+                height: 24, 
+                mx: 0.5 
+              }} />
               <Button
                 color="inherit"
                 onClick={handleExportExcel}
                 startIcon={<TableViewIcon />}
-                sx={{ fontWeight: 'medium' }}
+                sx={{ fontWeight: 'medium', ml: 0.5 }}
               >
                 Export
               </Button>
