@@ -21,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
 import ReactCanvasConfetti from 'react-canvas-confetti';
 
+// Configuration for the confetti canvas
 const canvasStyles = {
   position: 'fixed',
   pointerEvents: 'none',
@@ -31,53 +32,26 @@ const canvasStyles = {
   zIndex: 999
 };
 
+// Default confetti options
+const defaultConfettiConfig = {
+  angle: 90,
+  spread: 360,
+  startVelocity: 40,
+  elementCount: 70,
+  dragFriction: 0.12,
+  duration: 3000,
+  stagger: 3,
+  width: '10px',
+  height: '10px',
+  colors: ['#a864fd', '#29cdff', '#78ff44', '#ff718d', '#fdff6a']
+};
+
 const Dashboard = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
-  const refAnimationInstance = useRef(null);
-
-  const getInstance = useCallback((instance) => {
-    refAnimationInstance.current = instance;
-  }, []);
-
-  const makeShot = useCallback((particleRatio, opts) => {
-    refAnimationInstance.current &&
-      refAnimationInstance.current({
-        ...opts,
-        origin: { y: 0.7 },
-        particleCount: Math.floor(200 * particleRatio)
-      });
-  }, []);
-
-  const fireConfetti = useCallback(() => {
-    makeShot(0.25, {
-      spread: 26,
-      startVelocity: 55
-    });
-
-    makeShot(0.2, {
-      spread: 60
-    });
-
-    makeShot(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8
-    });
-
-    makeShot(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2
-    });
-
-    makeShot(0.1, {
-      spread: 120,
-      startVelocity: 45
-    });
-  }, [makeShot]);
+  // Reference to the confetti instance
+  const confettiRef = useRef(null);
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -92,6 +66,30 @@ const Dashboard = () => {
     };
 
     fetchCases();
+  }, []);
+
+  // Function to trigger confetti
+  const fireConfetti = useCallback(() => {
+    if (confettiRef.current) {
+      confettiRef.current(defaultConfettiConfig);
+      
+      // Add some delayed confetti for a more dynamic effect
+      setTimeout(() => {
+        confettiRef.current({
+          ...defaultConfettiConfig,
+          startVelocity: 20,
+          spread: 180
+        });
+      }, 250);
+      
+      setTimeout(() => {
+        confettiRef.current({
+          ...defaultConfettiConfig,
+          startVelocity: 30,
+          spread: 90
+        });
+      }, 500);
+    }
   }, []);
 
   const toggleStatus = async (id, currentStatus) => {
@@ -128,7 +126,10 @@ const Dashboard = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* Confetti canvas */}
-      <ReactCanvasConfetti refConfetti={getInstance} style={canvasStyles} />
+      <ReactCanvasConfetti 
+        refConfetti={(instance) => (confettiRef.current = instance)} 
+        style={canvasStyles} 
+      />
       
       {/* Fixed header section with toolbar height offset */}
       <Box sx={{ height: '64px' }} /> {/* Spacer for navbar */}
