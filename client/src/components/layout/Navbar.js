@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,16 +8,32 @@ import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import TableViewIcon from '@mui/icons-material/TableView';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import axios from 'axios';
+import { exportCasesToExcel } from '../../utils/excelExport';
 
 const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [loading, setLoading] = useState(false);
 
-  const handleExportExcel = () => {
-    // Logic for exporting to Excel will be implemented later
-    console.log('Export to Excel clicked');
+  const handleExportExcel = async () => {
+    try {
+      setLoading(true);
+      // Fetch all cases
+      const response = await axios.get('/api/cases');
+      
+      // Export to Excel and open email
+      await exportCasesToExcel(response.data);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching cases for export:', error);
+      alert('Failed to export cases. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,9 +86,10 @@ const Navbar = () => {
                 onClick={handleExportExcel}
                 aria-label="export to excel"
                 size="large"
+                disabled={loading}
                 sx={{ ml: 0.5 }}
               >
-                <TableViewIcon />
+                {loading ? <CircularProgress size={24} color="inherit" /> : <TableViewIcon />}
               </IconButton>
             </>
           ) : (
@@ -94,7 +111,8 @@ const Navbar = () => {
               <Button
                 color="inherit"
                 onClick={handleExportExcel}
-                startIcon={<TableViewIcon />}
+                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <TableViewIcon />}
+                disabled={loading}
                 sx={{ fontWeight: 'medium', ml: 0.5 }}
               >
                 Export
