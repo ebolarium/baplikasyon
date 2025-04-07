@@ -149,9 +149,17 @@ const CaseForm = () => {
     formData.details.trim() !== '';
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '64px' }}>
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minHeight: '100vh', 
+        paddingTop: '64px',
+        overflow: 'auto' // Make the entire page scrollable
+      }}
+    >
       <Container maxWidth="lg" sx={{ mt: 0, mb: 0, flexGrow: 1, py: 0 }}>
-        {/* Back button now directly attached to navbar */}
+        {/* Back button directly attached to navbar */}
         <Button
           component={RouterLink}
           to="/"
@@ -174,7 +182,7 @@ const CaseForm = () => {
                 flexDirection: 'column'
               }}
             >
-              {/* Form header now merged with form content */}
+              {/* Form header merged with form content */}
               <CardContent sx={{ p: 3, pb: 1 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                   <Typography 
@@ -193,17 +201,8 @@ const CaseForm = () => {
                 
                 <Divider sx={{ mt: 1, mb: 2 }} />
                 
-                {/* Scrollable form container */}
-                <Box 
-                  sx={{ 
-                    overflow: 'auto',
-                    maxHeight: {
-                      xs: '60vh',
-                      sm: '65vh',
-                      md: '70vh'
-                    }
-                  }}
-                >
+                {/* Form container - removed scroll */}
+                <Box>
                   {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
                   
                   <Box component="form" onSubmit={handleSubmit}>
@@ -336,7 +335,7 @@ const CaseForm = () => {
                 </Box>
               </CardContent>
               
-              {/* Footer with buttons - fixed at bottom of card */}
+              {/* Footer with buttons */}
               <Box sx={{ mt: 'auto', p: 3, pt: 0 }}>
                 <Divider sx={{ mb: 3 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -406,18 +405,8 @@ const CaseForm = () => {
                   </Typography>
                 </Box>
                 
-                {/* Scrollable preview container */}
-                <Box 
-                  sx={{ 
-                    overflow: 'auto', 
-                    flexGrow: 1,
-                    maxHeight: {
-                      xs: '40vh',
-                      sm: '45vh',
-                      md: '60vh'
-                    }
-                  }}
-                >
+                {/* Preview container - removed scroll */}
+                <Box sx={{ flexGrow: 1 }}>
                   {/* Case card preview */}
                   <Card 
                     elevation={0}
