@@ -2,7 +2,7 @@ services:
   - type: web
     name: baplikasyon
     env: node
-    buildCommand: npm install && cd client && npm install && npm run build && cd ..
+    buildCommand: chmod +x install.sh && ./install.sh
     startCommand: node server.js
     envVars:
       - key: NODE_ENV
