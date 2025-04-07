@@ -15,7 +15,7 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ boxShadow: 2 }}>
       <Toolbar>
         <Box 
           component={RouterLink} 
@@ -28,19 +28,13 @@ const Navbar = () => {
             flexGrow: 1
           }}
         >
-          <img 
-            src="/Baplikasyon_Logo.png" 
-            alt="Baplikasyon Logo" 
-            style={{ 
-              height: '40px', 
-              marginRight: '10px' 
-            }} 
-          />
           <Typography
             variant="h6"
             component="span"
             sx={{
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center'
             }}
           >
             Baplikasyon
@@ -53,6 +47,7 @@ const Navbar = () => {
               component={RouterLink}
               to="/reports"
               aria-label="reports"
+              size="large"
             >
               <AssessmentIcon />
             </IconButton>
@@ -62,6 +57,7 @@ const Navbar = () => {
               component={RouterLink}
               to="/reports"
               startIcon={<AssessmentIcon />}
+              sx={{ fontWeight: 'medium' }}
             >
               Reports
             </Button>
