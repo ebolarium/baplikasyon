@@ -15,7 +15,9 @@ import {
   Grid,
   useTheme,
   Paper,
-  Divider
+  Divider,
+  Pagination,
+  Stack
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
@@ -25,6 +27,10 @@ const Dashboard = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
+  
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const casesPerPage = 6; // Show 6 cases per page (3 rows of 2 cards on desktops)
   
   // Function to fire confetti based on the provided configuration
   const fireConfetti = useCallback(() => {
@@ -77,6 +83,8 @@ const Dashboard = () => {
           fireConfetti();
           // Clear the flag
           localStorage.removeItem('newClosedCase');
+          // Reset to first page when new case is added
+          setPage(1);
         }
         
         setCases(newCases);
@@ -96,17 +104,55 @@ const Dashboard = () => {
       const res = await axios.put(`/api/cases/${id}`, { status: newStatus });
       
       // Update the local state with the updated case
-      setCases(cases.map(c => c._id === id ? res.data : c));
+      const updatedCases = cases.map(c => c._id === id ? res.data : c);
+      setCases(updatedCases);
       
-      // Fire confetti when a case is closed
-      if (newStatus === 'closed') {
+      // Find the index of the updated case in the current display
+      const caseIndex = currentCases.findIndex(c => c._id === id);
+      
+      // If the case is on the current page and was closed
+      if (caseIndex !== -1 && newStatus === 'closed') {
+        // Fire confetti when a case is closed
         console.log('Triggering star confetti!');
         fireConfetti();
+        
+        // If this was the only open case on the current page, go to the first page
+        const remainingOpenCases = currentCases.filter(c => c._id !== id && c.status === 'open');
+        if (remainingOpenCases.length === 0 && page > 1) {
+          setPage(1);
+        }
       }
     } catch (err) {
       console.error('Error updating status:', err);
     }
   };
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    
+    // Scroll back to top of the cases section when changing pages
+    const casesSection = document.getElementById('cases-section');
+    if (casesSection) {
+      casesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(cases.length / casesPerPage);
+  
+  // Get current page's cases
+  const indexOfLastCase = page * casesPerPage;
+  const indexOfFirstCase = indexOfLastCase - casesPerPage;
+  const currentCases = cases
+    .sort((a, b) => {
+      // First sort by status (open cases first)
+      if (a.status === 'open' && b.status !== 'open') return -1;
+      if (a.status !== 'open' && b.status === 'open') return 1;
+      
+      // For cases with the same status, sort by date (newest first)
+      return new Date(b.openedAt) - new Date(a.openedAt);
+    })
+    .slice(indexOfFirstCase, indexOfLastCase);
 
   if (loading) {
     return (
@@ -173,6 +219,7 @@ const Dashboard = () => {
       
       {/* Scrollable lower half with cases list */}
       <Box 
+        id="cases-section"
         sx={{ 
           flexGrow: 1, 
           overflow: 'auto',
@@ -199,140 +246,169 @@ const Dashboard = () => {
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={2}>
-              {/* Sort cases - open first, then closed */}
-              {cases
-                .sort((a, b) => {
-                  // First sort by status (open cases first)
-                  if (a.status === 'open' && b.status !== 'open') return -1;
-                  if (a.status !== 'open' && b.status === 'open') return 1;
-                  
-                  // For cases with the same status, sort by date (newest first)
-                  return new Date(b.openedAt) - new Date(a.openedAt);
-                })
-                .map((supportCase) => (
-                <Grid item xs={12} sm={6} md={6} key={supportCase._id}>
-                  <Card 
-                    elevation={0}
+            <>
+              <Grid container spacing={2}>
+                {/* Show only current page cases */}
+                {currentCases.map((supportCase) => (
+                  <Grid item xs={12} sm={6} md={6} key={supportCase._id}>
+                    <Card 
+                      elevation={0}
+                      sx={{ 
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        borderRadius: 2,
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        transition: 'all 0.2s ease-in-out',
+                        backgroundColor: supportCase.status === 'open' ? '#fff' : '#f9f9f9', // Lighter background for closed cases
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
+                        }
+                      }}
+                    >
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        px: 2,
+                        pt: 1.5,
+                        pb: 1
+                      }}>
+                        <Typography 
+                          variant="h6" 
+                          component="h2" 
+                          sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: '1.1rem',
+                            color: theme.palette.text.primary
+                          }}
+                        >
+                          {supportCase.companyName}
+                        </Typography>
+                        <Chip
+                          label={supportCase.status === 'open' ? 'Open' : 'Closed'}
+                          color={supportCase.status === 'open' ? 'primary' : 'default'}
+                          size="small"
+                          sx={{ 
+                            fontWeight: 500,
+                            borderRadius: '20px',
+                            height: '24px'
+                          }}
+                        />
+                      </Box>
+                      
+                      <CardContent sx={{ pt: 0, pb: 0 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: theme.palette.text.secondary,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            lineHeight: 1.2,
+                            mt: 0.5
+                          }}
+                        >
+                          {supportCase.topic}
+                        </Typography>
+                      </CardContent>
+                      
+                      <CardActions sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        px: 2,
+                        py: 1.5,
+                        mt: 'auto',
+                        borderTop: '1px solid rgba(0, 0, 0, 0.06)'
+                      }}>
+                        <Button
+                          size="small"
+                          variant="text"
+                          component={RouterLink}
+                          to={`/case/${supportCase._id}`}
+                          sx={{ 
+                            fontWeight: 500, 
+                            color: '#1976d2',
+                            p: 0
+                          }}
+                        >
+                          VIEW DETAILS
+                        </Button>
+                        
+                        {supportCase.status === 'open' ? (
+                          <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => toggleStatus(supportCase._id, supportCase.status)}
+                            sx={{ 
+                              fontWeight: 500,
+                              borderRadius: '50px',
+                              px: 2
+                            }}
+                          >
+                            CLOSE CASE
+                          </Button>
+                        ) : (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => toggleStatus(supportCase._id, supportCase.status)}
+                            sx={{ 
+                              fontWeight: 500,
+                              borderRadius: '50px',
+                              px: 2
+                            }}
+                          >
+                            REOPEN
+                          </Button>
+                        )}
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+              
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <Box sx={{ mt: 4, mb: 2 }}>
+                  <Divider sx={{ mb: 4 }} />
+                  <Stack 
+                    spacing={2} 
                     sx={{ 
-                      height: '100%',
-                      display: 'flex',
+                      display: 'flex', 
                       flexDirection: 'column',
-                      borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.08)',
-                      transition: 'all 0.2s ease-in-out',
-                      backgroundColor: supportCase.status === 'open' ? '#fff' : '#f9f9f9', // Lighter background for closed cases
-                      '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
-                      }
+                      alignItems: 'center' 
                     }}
                   >
-                    <Box sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      px: 2,
-                      pt: 1.5,
-                      pb: 1
-                    }}>
-                      <Typography 
-                        variant="h6" 
-                        component="h2" 
-                        sx={{ 
+                    <Pagination 
+                      count={totalPages} 
+                      page={page} 
+                      onChange={handlePageChange} 
+                      color="primary"
+                      size="large"
+                      showFirstButton
+                      showLastButton
+                      sx={{
+                        '& .MuiPaginationItem-root': {
+                          borderRadius: '50%',
+                        },
+                        '& .Mui-selected': {
                           fontWeight: 'bold',
-                          fontSize: '1.1rem',
-                          color: theme.palette.text.primary
-                        }}
-                      >
-                        {supportCase.companyName}
-                      </Typography>
-                      <Chip
-                        label={supportCase.status === 'open' ? 'Open' : 'Closed'}
-                        color={supportCase.status === 'open' ? 'primary' : 'default'}
-                        size="small"
-                        sx={{ 
-                          fontWeight: 500,
-                          borderRadius: '20px',
-                          height: '24px'
-                        }}
-                      />
-                    </Box>
-                    
-                    <CardContent sx={{ pt: 0, pb: 0 }}>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: theme.palette.text.secondary,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: 1.2,
-                          mt: 0.5
-                        }}
-                      >
-                        {supportCase.topic}
-                      </Typography>
-                    </CardContent>
-                    
-                    <CardActions sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      px: 2,
-                      py: 1.5,
-                      mt: 'auto',
-                      borderTop: '1px solid rgba(0, 0, 0, 0.06)'
-                    }}>
-                      <Button
-                        size="small"
-                        variant="text"
-                        component={RouterLink}
-                        to={`/case/${supportCase._id}`}
-                        sx={{ 
-                          fontWeight: 500, 
-                          color: '#1976d2',
-                          p: 0
-                        }}
-                      >
-                        VIEW DETAILS
-                      </Button>
-                      
-                      {supportCase.status === 'open' ? (
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="primary"
-                          onClick={() => toggleStatus(supportCase._id, supportCase.status)}
-                          sx={{ 
-                            fontWeight: 500,
-                            borderRadius: '50px',
-                            px: 2
-                          }}
-                        >
-                          CLOSE CASE
-                        </Button>
-                      ) : (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="secondary"
-                          onClick={() => toggleStatus(supportCase._id, supportCase.status)}
-                          sx={{ 
-                            fontWeight: 500,
-                            borderRadius: '50px',
-                            px: 2
-                          }}
-                        >
-                          REOPEN
-                        </Button>
-                      )}
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                        }
+                      }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      Showing {indexOfFirstCase + 1} - {Math.min(indexOfLastCase, cases.length)} of {cases.length} cases
+                    </Typography>
+                  </Stack>
+                </Box>
+              )}
+            </>
           )}
         </Container>
       </Box>
