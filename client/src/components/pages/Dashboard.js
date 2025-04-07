@@ -19,85 +19,49 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
-import { tsParticles } from "tsparticles-engine";
-import { loadSlim } from "tsparticles-slim";
-
-// Initialize tsParticles engine once
-loadSlim(tsParticles);
+import confetti from 'canvas-confetti';
 
 const Dashboard = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   
-  // Simple helper to manually create confetti without tsParticles
-  const createConfetti = () => {
-    const container = document.createElement('div');
-    container.id = 'confetti-container';
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.width = '100%';
-    container.style.height = '100%';
-    container.style.pointerEvents = 'none';
-    container.style.zIndex = '9999';
-    document.body.appendChild(container);
-    
-    // Create confetti particles
-    const colors = ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"];
-    const shapes = ["square", "circle"];
-    
-    // Create 100 confetti pieces
-    for (let i = 0; i < 100; i++) {
-      setTimeout(() => {
-        const confetti = document.createElement('div');
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const shape = shapes[Math.floor(Math.random() * shapes.length)];
-        
-        confetti.style.position = 'absolute';
-        confetti.style.width = `${Math.random() * 10 + 5}px`;
-        confetti.style.height = `${Math.random() * 10 + 5}px`;
-        confetti.style.backgroundColor = color;
-        confetti.style.borderRadius = shape === 'circle' ? '50%' : '3px';
-        confetti.style.left = `${Math.random() * 100}%`;
-        confetti.style.top = '0';
-        confetti.style.opacity = '1';
-        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-        
-        container.appendChild(confetti);
-        
-        // Animate falling
-        const duration = Math.random() * 3 + 2;
-        const leftShift = (Math.random() - 0.5) * 30;
-        
-        confetti.animate([
-          { top: '0', opacity: 1, transform: `translateX(0) rotate(0deg)` },
-          { top: '100vh', opacity: 0.7, transform: `translateX(${leftShift}vw) rotate(${Math.random() * 360}deg)` }
-        ], {
-          duration: duration * 1000,
-          easing: 'cubic-bezier(0.55, 0.085, 0.68, 0.53)',
-        });
-        
-        // Remove after animation
-        setTimeout(() => {
-          confetti.remove();
-        }, duration * 1000);
-      }, Math.random() * 300);
-    }
-    
-    // Clean up container after all confetti is done
-    setTimeout(() => {
-      const container = document.getElementById('confetti-container');
-      if (container) {
-        document.body.removeChild(container);
-      }
-    }, 6000);
-  };
-  
-  // Function to fire confetti
+  // Function to fire confetti based on the provided configuration
   const fireConfetti = useCallback(() => {
-    console.log("Creating confetti!");
-    createConfetti();
+    console.log("Creating star confetti!");
+    
+    // Configuration defaults exactly as provided
+    const defaults = {
+      spread: 360,
+      ticks: 50,
+      gravity: 0,
+      decay: 0.94,
+      startVelocity: 30,
+      shapes: ["star"],
+      colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+    };
+
+    // Function to shoot confetti with provided settings
+    function shoot() {
+      confetti({
+        ...defaults,
+        particleCount: 40,
+        scalar: 1.2,
+        shapes: ["star"],
+      });
+
+      confetti({
+        ...defaults,
+        particleCount: 10,
+        scalar: 0.75,
+        shapes: ["circle"],
+      });
+    }
+
+    // Execute shots at specified intervals
+    setTimeout(shoot, 0);
+    setTimeout(shoot, 100);
+    setTimeout(shoot, 200);
   }, []);
 
   useEffect(() => {
@@ -125,7 +89,7 @@ const Dashboard = () => {
       
       // Fire confetti when a case is closed
       if (newStatus === 'closed') {
-        console.log('Triggering confetti!');
+        console.log('Triggering star confetti!');
         fireConfetti();
       }
     } catch (err) {
