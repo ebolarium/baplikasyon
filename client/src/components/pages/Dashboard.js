@@ -87,18 +87,6 @@ const Dashboard = () => {
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}
       >
-        <Typography 
-          variant="h5" 
-          component="h1" 
-          gutterBottom
-          sx={{ 
-            color: theme.palette.text.secondary,
-            mb: 4
-          }}
-        >
-          Support Cases
-        </Typography>
-        
         <Fab
           color="primary"
           aria-label="add new case"
