@@ -45,8 +45,14 @@ router.post('/', async (req, res) => {
       companyName: req.body.companyName,
       person: req.body.person,
       topic: req.body.topic,
-      details: req.body.details
+      details: req.body.details,
+      status: req.body.status || 'open'
     });
+
+    // If status is closed, add closedAt timestamp
+    if (req.body.status === 'closed') {
+      newCase.closedAt = Date.now();
+    }
 
     const supportCase = await newCase.save();
     res.json(supportCase);

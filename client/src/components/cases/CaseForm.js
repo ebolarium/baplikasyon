@@ -95,6 +95,7 @@ const CaseForm = () => {
   };
   
   const handleSwitchChange = (e) => {
+    console.log('Switch changed:', e.target.checked ? 'closed' : 'open');
     setFormData({
       ...formData,
       status: e.target.checked ? 'closed' : 'open'
@@ -108,21 +109,29 @@ const CaseForm = () => {
     });
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     setError('');
+    
+    // Log the form data being submitted
+    console.log('Submitting form data:', formData);
     
     try {
       if (isEdit) {
         await axios.put(`/api/cases/${id}`, formData);
       } else {
         await axios.post('/api/cases', formData);
+        
+        // Set a flag in localStorage if creating a case with closed status
+        if (formData.status === 'closed') {
+          localStorage.setItem('newClosedCase', 'true');
+        }
       }
       
       setLoading(false);
       navigate('/');
     } catch (err) {
+      console.error('Error submitting form:', err);
       setError('Failed to save case');
       setLoading(false);
     }
@@ -152,39 +161,37 @@ const CaseForm = () => {
     <Box 
       sx={{ 
         display: 'flex', 
-        flexDirection: 'column', 
-        minHeight: '100vh', 
+        flexDirection: 'column',
+        height: '100vh',
         paddingTop: '64px',
-        overflow: 'auto' // Make the entire page scrollable
+        overflow: 'auto'
       }}
     >
-      <Container maxWidth="lg" sx={{ mt: 0, mb: 0, flexGrow: 1, py: 0 }}>
+      <Container maxWidth="lg" sx={{ my: 0, py: 0, pb: 10 }}>
         {/* Back button directly attached to navbar */}
         <Button
           component={RouterLink}
           to="/"
           startIcon={<ArrowBackIcon />}
-          sx={{ mb: 0, fontWeight: 500, py: 1 }}
+          sx={{ mb: 0, fontWeight: 500 }}
         >
           Back to dashboard
         </Button>
         
-        <Grid container spacing={3} sx={{ mt: 0 }}>
+        <Grid container spacing={0} sx={{ mt: 0 }}>
           {/* Form column */}
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12}>
             <Card
               elevation={0}
               sx={{ 
                 borderRadius: 2,
                 border: '1px solid rgba(0, 0, 0, 0.08)',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column'
+                mb: 4,
+                mt: 0
               }}
             >
-              {/* Form header merged with form content */}
-              <CardContent sx={{ p: 3, pb: 1 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+              <CardContent sx={{ p: 3, pb: 3 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                   <Typography 
                     variant="h5" 
                     component="h1" 
@@ -199,13 +206,16 @@ const CaseForm = () => {
                   )}
                 </Box>
                 
-                <Divider sx={{ mt: 1, mb: 2 }} />
+                <Divider sx={{ mt: 0.5, mb: 1 }} />
                 
-                {/* Form container - removed scroll */}
+                {/* Form container */}
                 <Box>
                   {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
                   
-                  <Box component="form" onSubmit={handleSubmit}>
+                  <Box component="form" onSubmit={(e) => { 
+                    e.preventDefault(); 
+                    handleSubmit(); 
+                  }}>
                     <TextField
                       name="companyName"
                       label="Company Name"
@@ -215,7 +225,7 @@ const CaseForm = () => {
                       margin="normal"
                       required
                       variant="outlined"
-                      sx={{ mb: 2 }}
+                      sx={{ mb: 1 }}
                       inputRef={companyInputRef}
                       InputProps={{
                         startAdornment: (
@@ -246,7 +256,7 @@ const CaseForm = () => {
                       margin="normal"
                       required
                       variant="outlined"
-                      sx={{ mb: 2 }}
+                      sx={{ mb: 1 }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -276,7 +286,7 @@ const CaseForm = () => {
                       margin="normal"
                       required
                       variant="outlined"
-                      sx={{ mb: 2 }}
+                      sx={{ mb: 1 }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -308,7 +318,7 @@ const CaseForm = () => {
                       rows={4}
                       required
                       variant="outlined"
-                      sx={{ mb: 2 }}
+                      sx={{ mb: 1 }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -318,197 +328,52 @@ const CaseForm = () => {
                       }}
                     />
                     
-                    {isEdit && (
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={formData.status === 'closed'}
-                            onChange={handleSwitchChange}
-                            color="primary"
-                          />
-                        }
-                        label="Mark as Closed"
-                        sx={{ mt: 1, mb: 2 }}
-                      />
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
-              
-              {/* Footer with buttons */}
-              <Box sx={{ mt: 'auto', p: 3, pt: 0 }}>
-                <Divider sx={{ mb: 3 }} />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Button
-                    variant="outlined"
-                    onClick={() => navigate('/')}
-                    disabled={loading}
-                    sx={{ 
-                      borderRadius: '50px',
-                      px: 3
-                    }}
-                  >
-                    CANCEL
-                  </Button>
-                  
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={loading || !formIsValid}
-                    onClick={handleSubmit}
-                    sx={{ 
-                      borderRadius: '50px',
-                      px: 3
-                    }}
-                  >
-                    {loading ? (
-                      <CircularProgress size={24} />
-                    ) : (
-                      isEdit ? 'UPDATE CASE' : 'CREATE CASE'
-                    )}
-                  </Button>
-                </Box>
-              </Box>
-            </Card>
-          </Grid>
-          
-          {/* Preview column */}
-          <Grid item xs={12} md={4}>
-            <Card
-              elevation={0}
-              sx={{ 
-                borderRadius: 2,
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
-              <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <Typography 
-                  variant="h6" 
-                  component="h2" 
-                  sx={{ 
-                    fontWeight: 'bold',
-                    mb: 2
-                  }}
-                >
-                  Preview
-                </Typography>
-                
-                <Divider sx={{ mb: 2 }} />
-                
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    This is how your case will appear on the dashboard:
-                  </Typography>
-                </Box>
-                
-                {/* Preview container - removed scroll */}
-                <Box sx={{ flexGrow: 1 }}>
-                  {/* Case card preview */}
-                  <Card 
-                    elevation={0}
-                    sx={{ 
-                      display: 'flex',
-                      flexDirection: 'column',
-                      borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.08)',
-                      transition: 'all 0.2s ease-in-out',
-                      backgroundColor: '#fff',
-                      mt: 2
-                    }}
-                  >
-                    <Box sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      px: 2,
-                      pt: 1.5,
-                      pb: 1
-                    }}>
-                      <Typography 
-                        variant="h6" 
-                        component="h2" 
-                        sx={{ 
-                          fontWeight: 'bold',
-                          fontSize: '1.1rem',
-                          color: theme.palette.text.primary
-                        }}
-                      >
-                        {formData.companyName || 'Company Name'}
-                      </Typography>
-                      <Chip
-                        label="Open"
-                        color="primary"
-                        size="small"
-                        sx={{ 
-                          fontWeight: 500,
-                          borderRadius: '20px',
-                          height: '24px'
-                        }}
-                      />
-                    </Box>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.status === 'closed'}
+                          onChange={handleSwitchChange}
+                          color="primary"
+                        />
+                      }
+                      label={formData.status === 'closed' ? 'Case is Closed' : 'Mark as Closed'}
+                      sx={{ mt: 0, mb: 0 }}
+                    />
                     
-                    <CardContent sx={{ pt: 0, pb: 0 }}>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: theme.palette.text.secondary,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: 1.2,
-                          mt: 0.5
-                        }}
-                      >
-                        {formData.topic || 'Case topic will appear here'}
-                      </Typography>
-                    </CardContent>
+                    {/* Move buttons inside the form */}
+                    <Divider sx={{ my: 0.5 }} />
                     
-                    <Box sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      px: 2,
-                      py: 1.5,
-                      mt: 'auto',
-                      borderTop: '1px solid rgba(0, 0, 0, 0.06)'
-                    }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0, mt: 0.5 }}>
                       <Button
-                        size="small"
-                        variant="text"
+                        variant="outlined"
+                        onClick={() => navigate('/')}
+                        disabled={loading}
                         sx={{ 
-                          fontWeight: 500, 
-                          color: '#1976d2',
-                          p: 0
+                          borderRadius: '50px',
+                          px: 3
                         }}
                       >
-                        VIEW DETAILS
+                        CANCEL
                       </Button>
                       
                       <Button
-                        size="small"
+                        type="submit"
                         variant="contained"
                         color="primary"
+                        disabled={loading || !formIsValid}
                         sx={{ 
-                          fontWeight: 500,
                           borderRadius: '50px',
-                          px: 2
+                          px: 3
                         }}
                       >
-                        CLOSE CASE
+                        {loading ? (
+                          <CircularProgress size={24} />
+                        ) : (
+                          isEdit ? 'UPDATE CASE' : 'CREATE CASE'
+                        )}
                       </Button>
                     </Box>
-                  </Card>
-                </Box>
-                
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Fill in all required fields to create the support case.
-                  </Typography>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>

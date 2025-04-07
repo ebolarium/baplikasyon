@@ -34,9 +34,9 @@ const Dashboard = () => {
     const defaults = {
       spread: 360,
       ticks: 150,
-      gravity: 0,
+      gravity: 1,
       decay: 0.97,
-      startVelocity: 15,
+      startVelocity: 10,
       shapes: ["star"],
       colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
     };
@@ -68,7 +68,18 @@ const Dashboard = () => {
     const fetchCases = async () => {
       try {
         const res = await axios.get('/api/cases');
-        setCases(res.data);
+        const newCases = res.data;
+        
+        // Check for localStorage flag indicating a new closed case was just created
+        const hasNewClosedCase = localStorage.getItem('newClosedCase') === 'true';
+        if (hasNewClosedCase) {
+          console.log('New closed case detected via localStorage flag, triggering confetti!');
+          fireConfetti();
+          // Clear the flag
+          localStorage.removeItem('newClosedCase');
+        }
+        
+        setCases(newCases);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching cases:', error);
