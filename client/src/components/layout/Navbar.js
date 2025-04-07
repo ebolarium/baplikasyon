@@ -35,12 +35,13 @@ const Navbar = () => {
           }}
         >
           <Typography
-            variant="h6"
+            variant="subtitle1"
             component="span"
             sx={{
-              fontWeight: 'bold',
+              fontWeight: 'medium',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              fontSize: '0.95rem'
             }}
           >
             Baplikasyon
