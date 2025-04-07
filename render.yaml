@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: baplikasyon
+    env: node
+    buildCommand: npm install && cd client && npm install && npm run build && cd ..
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        value: mongodb+srv://barisboga:951753@cluster0.9ove7.mongodb.net/baplikasyon 
