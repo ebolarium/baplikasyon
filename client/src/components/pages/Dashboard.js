@@ -19,72 +19,153 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
-import ReactCanvasConfetti from 'react-canvas-confetti';
-
-// Configuration for the confetti canvas
-const canvasStyles = {
-  position: 'fixed',
-  pointerEvents: 'none',
-  width: '100%',
-  height: '100%',
-  top: 0,
-  left: 0,
-  zIndex: 999
-};
+import { tsParticles } from "tsparticles-slim";
 
 const Dashboard = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   
-  // Create a ref for the confetti animation instance
-  const refAnimationInstance = useRef(null);
-
-  // Function to initialize the confetti instance
-  const getInstance = useCallback(instance => {
-    refAnimationInstance.current = instance;
-  }, []);
-
-  // Function to create a confetti shot with specific parameters
-  const makeShot = useCallback((particleRatio, options) => {
-    if (refAnimationInstance.current) {
-      refAnimationInstance.current({
-        ...options,
-        origin: { y: 0.7 },
-        particleCount: Math.floor(200 * particleRatio)
-      });
-    }
-  }, []);
-
-  // Function to fire multiple confetti shots for a celebratory effect
+  // Function to fire confetti using tsParticles
   const fireConfetti = useCallback(() => {
-    makeShot(0.25, {
-      spread: 26,
-      startVelocity: 55
+    // First clean up any existing particles
+    tsParticles.domItem("tsparticles")?.destroy();
+    
+    // Load new confetti particles with the provided configuration
+    tsParticles.load({
+      id: "tsparticles",
+      options: {
+        "fullScreen": {
+          "zIndex": 1
+        },
+        "emitters": {
+          "position": {
+            "x": 50,
+            "y": 100
+          },
+          "rate": {
+            "quantity": 5,
+            "delay": 0.15
+          }
+        },
+        "particles": {
+          "color": {
+            "value": [
+              "#1E00FF",
+              "#FF0061",
+              "#E1FF00",
+              "#00FF9E"
+            ]
+          },
+          "move": {
+            "decay": 0.05,
+            "direction": "top",
+            "enable": true,
+            "gravity": {
+              "enable": true
+            },
+            "outModes": {
+              "top": "none",
+              "default": "destroy"
+            },
+            "speed": {
+              "min": 50,
+              "max": 100
+            }
+          },
+          "number": {
+            "value": 0
+          },
+          "opacity": {
+            "value": 1
+          },
+          "rotate": {
+            "value": {
+              "min": 0,
+              "max": 360
+            },
+            "direction": "random",
+            "animation": {
+              "enable": true,
+              "speed": 30
+            }
+          },
+          "tilt": {
+            "direction": "random",
+            "enable": true,
+            "value": {
+              "min": 0,
+              "max": 360
+            },
+            "animation": {
+              "enable": true,
+              "speed": 30
+            }
+          },
+          "size": {
+            "value": 3,
+            "animation": {
+              "enable": true,
+              "startValue": "min",
+              "count": 1,
+              "speed": 16,
+              "sync": true
+            }
+          },
+          "roll": {
+            "darken": {
+              "enable": true,
+              "value": 25
+            },
+            "enlighten": {
+              "enable": true,
+              "value": 25
+            },
+            "enable": true,
+            "speed": {
+              "min": 5,
+              "max": 15
+            }
+          },
+          "wobble": {
+            "distance": 30,
+            "enable": true,
+            "speed": {
+              "min": -7,
+              "max": 7
+            }
+          },
+          "shape": {
+            "type": [
+              "circle",
+              "square"
+            ],
+            "options": {}
+          }
+        },
+        "responsive": [
+          {
+            "maxWidth": 1024,
+            "options": {
+              "particles": {
+                "move": {
+                  "speed": {
+                    "min": 33,
+                    "max": 66
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
     });
-
-    makeShot(0.2, {
-      spread: 60
-    });
-
-    makeShot(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8
-    });
-
-    makeShot(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2
-    });
-
-    makeShot(0.1, {
-      spread: 120,
-      startVelocity: 45
-    });
-  }, [makeShot]);
+    
+    // Auto-cleanup after 5 seconds
+    setTimeout(() => {
+      tsParticles.domItem("tsparticles")?.destroy();
+    }, 5000);
+  }, []);
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -99,6 +180,24 @@ const Dashboard = () => {
     };
 
     fetchCases();
+    
+    // Setup particles container
+    const particlesContainer = document.createElement('div');
+    particlesContainer.id = 'tsparticles';
+    particlesContainer.style.position = 'fixed';
+    particlesContainer.style.top = '0';
+    particlesContainer.style.left = '0';
+    particlesContainer.style.width = '100%';
+    particlesContainer.style.height = '100%';
+    particlesContainer.style.pointerEvents = 'none';
+    particlesContainer.style.zIndex = '9999';
+    document.body.appendChild(particlesContainer);
+    
+    // Cleanup function
+    return () => {
+      tsParticles.domItem("tsparticles")?.destroy();
+      document.body.removeChild(particlesContainer);
+    };
   }, []);
 
   const toggleStatus = async (id, currentStatus) => {
@@ -111,7 +210,7 @@ const Dashboard = () => {
       
       // Fire confetti when a case is closed
       if (newStatus === 'closed') {
-        console.log('Triggering confetti!');
+        console.log('Triggering confetti with tsParticles!');
         fireConfetti();
       }
     } catch (err) {
@@ -135,9 +234,6 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* Confetti canvas */}
-      <ReactCanvasConfetti ref={getInstance} style={canvasStyles} />
-      
       {/* Fixed header section with toolbar height offset */}
       <Box sx={{ height: '64px' }} /> {/* Spacer for navbar */}
       
