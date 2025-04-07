@@ -51,76 +51,52 @@ const Dashboard = () => {
       container.style.zIndex = '9999';
       document.body.appendChild(container);
       
-      // Initialize particles
+      // Initialize particles with star shapes
       await tsParticles.load("tsparticles", {
         fullScreen: false,
-        emitters: [
-          {
-            life: { duration: 5, count: 1 },
-            position: { x: 50, y: 70 },
-            rate: { delay: 0.1, quantity: 5 },
-            particles: {
-              color: {
-                value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"]
-              },
-              move: {
-                direction: "top",
-                enable: true,
-                outModes: { default: "destroy", top: "none" },
-                speed: { min: 50, max: 100 }
-              },
-              rotate: {
-                value: { min: 0, max: 360 },
-                direction: "random",
-                animation: { enable: true, speed: 30 }
-              },
-              tilt: {
-                direction: "random",
-                enable: true,
-                value: { min: 0, max: 360 },
-                animation: { enable: true, speed: 30 }
-              },
-              size: { value: 3 },
-              roll: {
-                enable: true,
-                speed: { min: 5, max: 15 }
-              },
-              wobble: {
-                distance: 30,
-                enable: true,
-                speed: { min: -7, max: 7 }
-              },
-              shape: {
-                type: ["circle", "square"]
-              }
-            }
-          }
-        ],
         particles: {
-          color: {
-            value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"]
-          },
-          move: {
-            decay: 0.05,
-            direction: "top",
-            enable: true,
-            gravity: {
-              enable: true
-            },
-            outModes: {
-              top: "none",
-              default: "destroy"
-            },
-            speed: {
-              min: 50,
-              max: 100
-            }
-          },
           number: {
             value: 0
           },
+          color: {
+            value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"]
+          },
+          shape: {
+            type: "star",
+            options: {
+              star: {
+                sides: 5,
+                inset: 2
+              }
+            }
+          },
           opacity: {
             value: 1
+          },
+          size: {
+            value: { min: 3, max: 7 }
+          },
+          life: {
+            duration: {
+              sync: false,
+              value: 5
+            },
+            count: 1
+          },
+          move: {
+            enable: true,
+            gravity: {
+              enable: true,
+              acceleration: 0.1
+            },
+            speed: 3,
+            direction: "none",
+            random: true,
+            straight: false,
+            outModes: {
+              default: "destroy",
+              top: "none"
+            }
           },
           rotate: {
             value: {
@@ -145,16 +121,6 @@ const Dashboard = () => {
               speed: 30
             }
           },
-          size: {
-            value: 3,
-            animation: {
-              enable: true,
-              startValue: "min",
-              count: 1,
-              speed: 16,
-              sync: true
-            }
-          },
           roll: {
             darken: {
               enable: true,
@@ -177,15 +143,86 @@ const Dashboard = () => {
               min: -7,
               max: 7
             }
-          },
-          shape: {
-            type: [
-              "circle",
-              "square"
-            ],
-            options: {}
           }
-        }
+        },
+        emitters: [
+          {
+            // First burst
+            position: { x: 50, y: 70 },
+            rate: { delay: 0, quantity: 40 },
+            life: { duration: 0.1, count: 1 },
+            particles: {
+              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
+              move: { 
+                direction: "none",
+                outModes: { default: "destroy", top: "none" },
+                speed: 30,
+                gravity: { enable: true, acceleration: 0 }
+              },
+              opacity: { value: 1 },
+              shape: { type: "star" },
+              size: { value: { min: 4, max: 7 } },
+              life: { count: 1 }
+            }
+          },
+          {
+            // Second burst - delayed by 100ms
+            position: { x: 50, y: 70 },
+            rate: { delay: 0.1, quantity: 40 },
+            life: { duration: 0.1, count: 1 },
+            particles: {
+              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
+              move: { 
+                direction: "none",
+                outModes: { default: "destroy", top: "none" },
+                speed: 30,
+                gravity: { enable: true, acceleration: 0 }
+              },
+              opacity: { value: 1 },
+              shape: { type: "star" },
+              size: { value: { min: 4, max: 7 } },
+              life: { count: 1 }
+            }
+          },
+          {
+            // Third burst - delayed by 200ms
+            position: { x: 50, y: 70 },
+            rate: { delay: 0.2, quantity: 40 },
+            life: { duration: 0.1, count: 1 },
+            particles: {
+              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
+              move: { 
+                direction: "none",
+                outModes: { default: "destroy", top: "none" },
+                speed: 30,
+                gravity: { enable: true, acceleration: 0 }
+              },
+              opacity: { value: 1 },
+              shape: { type: "star" },
+              size: { value: { min: 4, max: 7 } },
+              life: { count: 1 }
+            }
+          },
+          {
+            // Some circles mixed in
+            position: { x: 50, y: 70 },
+            rate: { delay: 0.1, quantity: 10 },
+            life: { duration: 0.1, count: 1 },
+            particles: {
+              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
+              move: { 
+                direction: "none",
+                outModes: { default: "destroy", top: "none" },
+                speed: 30,
+                gravity: { enable: true, acceleration: 0 }
+              },
+              opacity: { value: 1 },
+              shape: { type: "circle" },
+              size: { value: { min: 3, max: 5 } },
+              life: { count: 1 }
+            }
+          }
+        ]
       });
       
       // Auto-cleanup after 5 seconds
