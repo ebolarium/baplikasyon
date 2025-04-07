@@ -164,33 +164,32 @@ const Reports = () => {
           <Card 
             elevation={0} 
             sx={{ 
-              mb: 3, 
+              mb: 2,
               borderRadius: 2, 
               border: '1px solid rgba(0, 0, 0, 0.08)',
               overflow: 'visible'
             }}
           >
-            <CardContent sx={{ p: 3 }}>
+            <CardContent sx={{ p: 2 }}>
               <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Typography 
-                  variant="h5" 
+                  variant="h6"
                   component="h1" 
                   sx={{ fontWeight: 'bold' }}
                 >
                   Support Reports
                 </Typography>
-                <BarChartIcon color="primary" sx={{ fontSize: 28 }} />
+                <BarChartIcon color="primary" sx={{ fontSize: 24 }} />
               </Box>
             </CardContent>
           </Card>
 
           {/* Stats cards */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={4}>
               <Card
                 elevation={0}
                 sx={{ 
-                  p: 2, 
                   height: '100%',
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
@@ -201,20 +200,23 @@ const Reports = () => {
                   }
                 }}
               >
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography color="textSecondary" gutterBottom>
+                <CardContent sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
                       Total Cases
                     </Typography>
                     <Box sx={{ 
                       backgroundColor: theme.palette.grey[100], 
                       borderRadius: '50%',
-                      p: 1
+                      p: 0.75,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <BarChartIcon color="primary" />
+                      <BarChartIcon color="primary" sx={{ fontSize: 18 }} />
                     </Box>
                   </Box>
-                  <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
                     {totalCases}
                   </Typography>
                 </CardContent>
@@ -224,7 +226,6 @@ const Reports = () => {
               <Card
                 elevation={0}
                 sx={{ 
-                  p: 2, 
                   height: '100%',
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
@@ -235,20 +236,23 @@ const Reports = () => {
                   }
                 }}
               >
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography color="textSecondary" gutterBottom>
+                <CardContent sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
                       Open Cases
                     </Typography>
                     <Box sx={{ 
                       backgroundColor: theme.palette.primary.light, 
                       borderRadius: '50%',
-                      p: 1
+                      p: 0.75,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <BarChartIcon color="primary" />
+                      <BarChartIcon color="primary" sx={{ fontSize: 18 }} />
                     </Box>
                   </Box>
-                  <Typography variant="h3" component="div" color="primary" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" component="div" color="primary" sx={{ fontWeight: 'bold' }}>
                     {openCases}
                   </Typography>
                 </CardContent>
@@ -258,7 +262,6 @@ const Reports = () => {
               <Card
                 elevation={0}
                 sx={{ 
-                  p: 2, 
                   height: '100%',
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
@@ -269,20 +272,23 @@ const Reports = () => {
                   }
                 }}
               >
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography color="textSecondary" gutterBottom>
+                <CardContent sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
                       Closed Cases
                     </Typography>
                     <Box sx={{ 
                       backgroundColor: theme.palette.grey[100], 
                       borderRadius: '50%',
-                      p: 1
+                      p: 0.75,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <BarChartIcon color="primary" />
+                      <BarChartIcon color="primary" sx={{ fontSize: 18 }} />
                     </Box>
                   </Box>
-                  <Typography variant="h3" component="div" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" component="div" color="textSecondary" sx={{ fontWeight: 'bold' }}>
                     {closedCases}
                   </Typography>
                 </CardContent>
@@ -294,7 +300,7 @@ const Reports = () => {
           <Card 
             elevation={0}
             sx={{ 
-              mb: 4, 
+              mb: 3,
               borderRadius: 2,
               border: '1px solid rgba(0, 0, 0, 0.08)',
               transition: 'all 0.2s ease-in-out',
@@ -304,17 +310,17 @@ const Reports = () => {
               }
             }}
           >
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                   Average Resolution Time
                 </Typography>
-                <AccessTimeIcon color="primary" />
+                <AccessTimeIcon color="primary" sx={{ fontSize: 20 }} />
               </Box>
-              <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold' }}>
+              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                 {avgResolutionTime.toFixed(1)} days
               </Typography>
-              <Typography variant="body2" color="textSecondary">
+              <Typography variant="caption" color="textSecondary">
                 Based on {closedCasesWithTime.length} closed cases
               </Typography>
             </CardContent>
@@ -328,14 +334,14 @@ const Reports = () => {
               border: '1px solid rgba(0, 0, 0, 0.08)'
             }}
           >
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                   Cases by Company
                 </Typography>
-                <BusinessIcon color="primary" />
+                <BusinessIcon color="primary" sx={{ fontSize: 20 }} />
               </Box>
-              <Box sx={{ height: 400 }}>
+              <Box sx={{ height: 350 }}>
                 <DataGrid
                   rows={companyRows}
                   columns={columns}
@@ -345,14 +351,16 @@ const Reports = () => {
                   sx={{
                     border: 'none',
                     '& .MuiDataGrid-cell': {
-                      borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+                      fontSize: '0.875rem'
                     },
                     '& .MuiDataGrid-columnHeaders': {
                       backgroundColor: theme.palette.grey[50],
                       borderBottom: 'none'
                     },
                     '& .MuiDataGrid-columnHeader': {
-                      fontWeight: 600
+                      fontWeight: 600,
+                      fontSize: '0.875rem'
                     }
                   }}
                 />
