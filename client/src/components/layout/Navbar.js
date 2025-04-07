@@ -17,19 +17,35 @@ const Navbar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography
-          variant="h6"
-          component={RouterLink}
-          to="/"
-          sx={{
-            flexGrow: 1,
+        <Box 
+          component={RouterLink} 
+          to="/" 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
             textDecoration: 'none',
             color: 'inherit',
-            fontWeight: 'bold'
+            flexGrow: 1
           }}
         >
-          Baplikasyon
-        </Typography>
+          <img 
+            src="/Baplikasyon_Logo.png" 
+            alt="Baplikasyon Logo" 
+            style={{ 
+              height: '40px', 
+              marginRight: '10px' 
+            }} 
+          />
+          <Typography
+            variant="h6"
+            component="span"
+            sx={{
+              fontWeight: 'bold'
+            }}
+          >
+            Baplikasyon
+          </Typography>
+        </Box>
         <Box>
           {isMobile ? (
             <IconButton
