@@ -30,216 +30,74 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   
-  // Function to fire confetti using tsParticles
-  const fireConfetti = useCallback(async () => {
-    try {
-      // Remove existing container if it exists
-      const existingContainer = document.getElementById("tsparticles");
-      if (existingContainer) {
-        document.body.removeChild(existingContainer);
-      }
-      
-      // Create a new container
-      const container = document.createElement('div');
-      container.id = 'tsparticles';
-      container.style.position = 'fixed';
-      container.style.top = '0';
-      container.style.left = '0';
-      container.style.width = '100%';
-      container.style.height = '100%';
-      container.style.pointerEvents = 'none';
-      container.style.zIndex = '9999';
-      document.body.appendChild(container);
-      
-      // Initialize particles with star shapes
-      await tsParticles.load("tsparticles", {
-        fullScreen: false,
-        particles: {
-          number: {
-            value: 0
-          },
-          color: {
-            value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"]
-          },
-          shape: {
-            type: "star",
-            options: {
-              star: {
-                sides: 5,
-                inset: 2
-              }
-            }
-          },
-          opacity: {
-            value: 1
-          },
-          size: {
-            value: { min: 3, max: 7 }
-          },
-          life: {
-            duration: {
-              sync: false,
-              value: 5
-            },
-            count: 1
-          },
-          move: {
-            enable: true,
-            gravity: {
-              enable: true,
-              acceleration: 0.1
-            },
-            speed: 3,
-            direction: "none",
-            random: true,
-            straight: false,
-            outModes: {
-              default: "destroy",
-              top: "none"
-            }
-          },
-          rotate: {
-            value: {
-              min: 0,
-              max: 360
-            },
-            direction: "random",
-            animation: {
-              enable: true,
-              speed: 30
-            }
-          },
-          tilt: {
-            direction: "random",
-            enable: true,
-            value: {
-              min: 0,
-              max: 360
-            },
-            animation: {
-              enable: true,
-              speed: 30
-            }
-          },
-          roll: {
-            darken: {
-              enable: true,
-              value: 25
-            },
-            enlighten: {
-              enable: true,
-              value: 25
-            },
-            enable: true,
-            speed: {
-              min: 5,
-              max: 15
-            }
-          },
-          wobble: {
-            distance: 30,
-            enable: true,
-            speed: {
-              min: -7,
-              max: 7
-            }
-          }
-        },
-        emitters: [
-          {
-            // First burst
-            position: { x: 50, y: 70 },
-            rate: { delay: 0, quantity: 40 },
-            life: { duration: 0.1, count: 1 },
-            particles: {
-              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
-              move: { 
-                direction: "none",
-                outModes: { default: "destroy", top: "none" },
-                speed: 30,
-                gravity: { enable: true, acceleration: 0 }
-              },
-              opacity: { value: 1 },
-              shape: { type: "star" },
-              size: { value: { min: 4, max: 7 } },
-              life: { count: 1 }
-            }
-          },
-          {
-            // Second burst - delayed by 100ms
-            position: { x: 50, y: 70 },
-            rate: { delay: 0.1, quantity: 40 },
-            life: { duration: 0.1, count: 1 },
-            particles: {
-              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
-              move: { 
-                direction: "none",
-                outModes: { default: "destroy", top: "none" },
-                speed: 30,
-                gravity: { enable: true, acceleration: 0 }
-              },
-              opacity: { value: 1 },
-              shape: { type: "star" },
-              size: { value: { min: 4, max: 7 } },
-              life: { count: 1 }
-            }
-          },
-          {
-            // Third burst - delayed by 200ms
-            position: { x: 50, y: 70 },
-            rate: { delay: 0.2, quantity: 40 },
-            life: { duration: 0.1, count: 1 },
-            particles: {
-              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
-              move: { 
-                direction: "none",
-                outModes: { default: "destroy", top: "none" },
-                speed: 30,
-                gravity: { enable: true, acceleration: 0 }
-              },
-              opacity: { value: 1 },
-              shape: { type: "star" },
-              size: { value: { min: 4, max: 7 } },
-              life: { count: 1 }
-            }
-          },
-          {
-            // Some circles mixed in
-            position: { x: 50, y: 70 },
-            rate: { delay: 0.1, quantity: 10 },
-            life: { duration: 0.1, count: 1 },
-            particles: {
-              color: { value: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"] },
-              move: { 
-                direction: "none",
-                outModes: { default: "destroy", top: "none" },
-                speed: 30,
-                gravity: { enable: true, acceleration: 0 }
-              },
-              opacity: { value: 1 },
-              shape: { type: "circle" },
-              size: { value: { min: 3, max: 5 } },
-              life: { count: 1 }
-            }
-          }
-        ]
-      });
-      
-      // Auto-cleanup after 5 seconds
+  // Simple helper to manually create confetti without tsParticles
+  const createConfetti = () => {
+    const container = document.createElement('div');
+    container.id = 'confetti-container';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.pointerEvents = 'none';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    
+    // Create confetti particles
+    const colors = ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"];
+    const shapes = ["square", "circle"];
+    
+    // Create 100 confetti pieces
+    for (let i = 0; i < 100; i++) {
       setTimeout(() => {
-        try {
-          const container = document.getElementById("tsparticles");
-          if (container) {
-            tsParticles.destroy();
-            document.body.removeChild(container);
-          }
-        } catch (err) {
-          console.error("Error cleaning up particles:", err);
-        }
-      }, 5000);
-    } catch (err) {
-      console.error("Error initializing confetti:", err);
+        const confetti = document.createElement('div');
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        
+        confetti.style.position = 'absolute';
+        confetti.style.width = `${Math.random() * 10 + 5}px`;
+        confetti.style.height = `${Math.random() * 10 + 5}px`;
+        confetti.style.backgroundColor = color;
+        confetti.style.borderRadius = shape === 'circle' ? '50%' : '3px';
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.top = '0';
+        confetti.style.opacity = '1';
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        
+        container.appendChild(confetti);
+        
+        // Animate falling
+        const duration = Math.random() * 3 + 2;
+        const leftShift = (Math.random() - 0.5) * 30;
+        
+        confetti.animate([
+          { top: '0', opacity: 1, transform: `translateX(0) rotate(0deg)` },
+          { top: '100vh', opacity: 0.7, transform: `translateX(${leftShift}vw) rotate(${Math.random() * 360}deg)` }
+        ], {
+          duration: duration * 1000,
+          easing: 'cubic-bezier(0.55, 0.085, 0.68, 0.53)',
+        });
+        
+        // Remove after animation
+        setTimeout(() => {
+          confetti.remove();
+        }, duration * 1000);
+      }, Math.random() * 300);
     }
+    
+    // Clean up container after all confetti is done
+    setTimeout(() => {
+      const container = document.getElementById('confetti-container');
+      if (container) {
+        document.body.removeChild(container);
+      }
+    }, 6000);
+  };
+  
+  // Function to fire confetti
+  const fireConfetti = useCallback(() => {
+    console.log("Creating confetti!");
+    createConfetti();
   }, []);
 
   useEffect(() => {
@@ -267,8 +125,8 @@ const Dashboard = () => {
       
       // Fire confetti when a case is closed
       if (newStatus === 'closed') {
-        console.log('Triggering confetti with tsParticles!');
-        await fireConfetti();
+        console.log('Triggering confetti!');
+        fireConfetti();
       }
     } catch (err) {
       console.error('Error updating status:', err);
