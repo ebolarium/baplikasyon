@@ -149,13 +149,13 @@ const Reports = () => {
           paddingBottom: '24px' // Add padding at the bottom for better visibility
         }}
       >
-        <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
+        <Container maxWidth="md" sx={{ mb: 6 }}>
           {/* Back button */}
           <Button
             component={RouterLink}
             to="/"
             startIcon={<ArrowBackIcon />}
-            sx={{ mb: 3, fontWeight: 500 }}
+            sx={{ mb: 1, fontWeight: 500 }}
           >
             Back to dashboard
           </Button>
