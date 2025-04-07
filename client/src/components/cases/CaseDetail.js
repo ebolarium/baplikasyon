@@ -109,8 +109,8 @@ const CaseDetail = () => {
   }
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '64px' }}>
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '64px', overflow: 'auto' }}>
+      <Container maxWidth="md" sx={{ mb: 4, flexGrow: 1 }}>
         {/* Back button */}
         <Button
           component={RouterLink}
@@ -154,11 +154,10 @@ const CaseDetail = () => {
           </CardContent>
         </Card>
         
-        {/* Details section */}
+        {/* Details section with actions merged in */}
         <Card 
           elevation={0} 
           sx={{ 
-            mb: 3, 
             borderRadius: 2, 
             border: '1px solid rgba(0, 0, 0, 0.08)' 
           }}
@@ -217,18 +216,10 @@ const CaseDetail = () => {
                 </Paper>
               </Grid>
             </Grid>
-          </CardContent>
-        </Card>
-        
-        {/* Actions section */}
-        <Card 
-          elevation={0} 
-          sx={{ 
-            borderRadius: 2, 
-            border: '1px solid rgba(0, 0, 0, 0.08)' 
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
+            
+            {/* Actions section moved here */}
+            <Divider sx={{ my: 3 }} />
+            
             <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
               <Box>
                 <Button
@@ -248,17 +239,17 @@ const CaseDetail = () => {
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <Button
                   variant="outlined"
-                  color="primary"
                   startIcon={<EditIcon />}
                   component={RouterLink}
                   to={`/case/edit/${id}`}
                   sx={{ 
                     borderRadius: '50px',
-                    px: 3
+                    fontWeight: 500
                   }}
                 >
                   EDIT
                 </Button>
+                
                 <Button
                   variant="outlined"
                   color="error"
@@ -266,7 +257,7 @@ const CaseDetail = () => {
                   onClick={() => setOpenDialog(true)}
                   sx={{ 
                     borderRadius: '50px',
-                    px: 3
+                    fontWeight: 500
                   }}
                 >
                   DELETE
@@ -275,41 +266,41 @@ const CaseDetail = () => {
             </Box>
           </CardContent>
         </Card>
+        
+        {/* Delete confirmation dialog */}
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Confirm Delete"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this support case? This action cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button 
+              onClick={() => setOpenDialog(false)} 
+              sx={{ borderRadius: '50px' }}
+            >
+              CANCEL
+            </Button>
+            <Button 
+              onClick={handleDelete} 
+              color="error" 
+              variant="contained"
+              sx={{ borderRadius: '50px' }}
+              autoFocus
+            >
+              DELETE
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
-      
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Confirm Delete"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this support case? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setOpenDialog(false)} 
-            sx={{ borderRadius: '50px' }}
-          >
-            CANCEL
-          </Button>
-          <Button 
-            onClick={handleDelete} 
-            color="error" 
-            variant="contained"
-            sx={{ borderRadius: '50px' }}
-            autoFocus
-          >
-            DELETE
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
