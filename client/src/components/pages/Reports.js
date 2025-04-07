@@ -186,11 +186,11 @@ const Reports = () => {
 
           {/* Stats cards */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6}>
               <Card
                 elevation={0}
                 sx={{ 
-                  height: '100%',
+                  height: 140, // Fixed square-like height
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   transition: 'all 0.2s ease-in-out',
@@ -200,7 +200,7 @@ const Reports = () => {
                   }
                 }}
               >
-                <CardContent sx={{ p: 2 }}>
+                <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="body2" color="textSecondary">
                       Total Cases
@@ -216,17 +216,17 @@ const Reports = () => {
                       <BarChartIcon color="primary" sx={{ fontSize: 18 }} />
                     </Box>
                   </Box>
-                  <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', mt: 1 }}>
                     {totalCases}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6}>
               <Card
                 elevation={0}
                 sx={{ 
-                  height: '100%',
+                  height: 140, // Fixed square-like height
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   transition: 'all 0.2s ease-in-out',
@@ -236,7 +236,7 @@ const Reports = () => {
                   }
                 }}
               >
-                <CardContent sx={{ p: 2 }}>
+                <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="body2" color="textSecondary">
                       Open Cases
@@ -252,44 +252,8 @@ const Reports = () => {
                       <BarChartIcon color="primary" sx={{ fontSize: 18 }} />
                     </Box>
                   </Box>
-                  <Typography variant="h5" component="div" color="primary" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" component="div" color="primary" sx={{ fontWeight: 'bold', mt: 1 }}>
                     {openCases}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Card
-                elevation={0}
-                sx={{ 
-                  height: '100%',
-                  borderRadius: 2,
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  transition: 'all 0.2s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
-                  }
-                }}
-              >
-                <CardContent sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="body2" color="textSecondary">
-                      Closed Cases
-                    </Typography>
-                    <Box sx={{ 
-                      backgroundColor: theme.palette.grey[100], 
-                      borderRadius: '50%',
-                      p: 0.75,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <BarChartIcon color="primary" sx={{ fontSize: 18 }} />
-                    </Box>
-                  </Box>
-                  <Typography variant="h5" component="div" color="textSecondary" sx={{ fontWeight: 'bold' }}>
-                    {closedCases}
                   </Typography>
                 </CardContent>
               </Card>
