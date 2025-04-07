@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
-import { tsParticles } from "tsparticles-slim";
+import { loadSlim } from "tsparticles-slim";
 
 const Dashboard = () => {
   const [cases, setCases] = useState([]);
@@ -28,142 +28,145 @@ const Dashboard = () => {
   
   // Function to fire confetti using tsParticles
   const fireConfetti = useCallback(() => {
-    // First clean up any existing particles
-    tsParticles.domItem("tsparticles")?.destroy();
+    // Clear existing particles if any
+    const existingContainer = document.getElementById("tsparticles");
+    if (existingContainer) {
+      existingContainer.innerHTML = "";
+    }
     
     // Load new confetti particles with the provided configuration
-    tsParticles.load({
-      id: "tsparticles",
-      options: {
-        "fullScreen": {
-          "zIndex": 1
+    loadSlim("tsparticles", {
+      "fullScreen": {
+        "zIndex": 1
+      },
+      "emitters": {
+        "position": {
+          "x": 50,
+          "y": 100
         },
-        "emitters": {
-          "position": {
-            "x": 50,
-            "y": 100
+        "rate": {
+          "quantity": 5,
+          "delay": 0.15
+        }
+      },
+      "particles": {
+        "color": {
+          "value": [
+            "#1E00FF",
+            "#FF0061",
+            "#E1FF00",
+            "#00FF9E"
+          ]
+        },
+        "move": {
+          "decay": 0.05,
+          "direction": "top",
+          "enable": true,
+          "gravity": {
+            "enable": true
           },
-          "rate": {
-            "quantity": 5,
-            "delay": 0.15
+          "outModes": {
+            "top": "none",
+            "default": "destroy"
+          },
+          "speed": {
+            "min": 50,
+            "max": 100
           }
         },
-        "particles": {
-          "color": {
-            "value": [
-              "#1E00FF",
-              "#FF0061",
-              "#E1FF00",
-              "#00FF9E"
-            ]
+        "number": {
+          "value": 0
+        },
+        "opacity": {
+          "value": 1
+        },
+        "rotate": {
+          "value": {
+            "min": 0,
+            "max": 360
           },
-          "move": {
-            "decay": 0.05,
-            "direction": "top",
+          "direction": "random",
+          "animation": {
             "enable": true,
-            "gravity": {
-              "enable": true
-            },
-            "outModes": {
-              "top": "none",
-              "default": "destroy"
-            },
-            "speed": {
-              "min": 50,
-              "max": 100
-            }
-          },
-          "number": {
-            "value": 0
-          },
-          "opacity": {
-            "value": 1
-          },
-          "rotate": {
-            "value": {
-              "min": 0,
-              "max": 360
-            },
-            "direction": "random",
-            "animation": {
-              "enable": true,
-              "speed": 30
-            }
-          },
-          "tilt": {
-            "direction": "random",
-            "enable": true,
-            "value": {
-              "min": 0,
-              "max": 360
-            },
-            "animation": {
-              "enable": true,
-              "speed": 30
-            }
-          },
-          "size": {
-            "value": 3,
-            "animation": {
-              "enable": true,
-              "startValue": "min",
-              "count": 1,
-              "speed": 16,
-              "sync": true
-            }
-          },
-          "roll": {
-            "darken": {
-              "enable": true,
-              "value": 25
-            },
-            "enlighten": {
-              "enable": true,
-              "value": 25
-            },
-            "enable": true,
-            "speed": {
-              "min": 5,
-              "max": 15
-            }
-          },
-          "wobble": {
-            "distance": 30,
-            "enable": true,
-            "speed": {
-              "min": -7,
-              "max": 7
-            }
-          },
-          "shape": {
-            "type": [
-              "circle",
-              "square"
-            ],
-            "options": {}
+            "speed": 30
           }
         },
-        "responsive": [
-          {
-            "maxWidth": 1024,
-            "options": {
-              "particles": {
-                "move": {
-                  "speed": {
-                    "min": 33,
-                    "max": 66
-                  }
+        "tilt": {
+          "direction": "random",
+          "enable": true,
+          "value": {
+            "min": 0,
+            "max": 360
+          },
+          "animation": {
+            "enable": true,
+            "speed": 30
+          }
+        },
+        "size": {
+          "value": 3,
+          "animation": {
+            "enable": true,
+            "startValue": "min",
+            "count": 1,
+            "speed": 16,
+            "sync": true
+          }
+        },
+        "roll": {
+          "darken": {
+            "enable": true,
+            "value": 25
+          },
+          "enlighten": {
+            "enable": true,
+            "value": 25
+          },
+          "enable": true,
+          "speed": {
+            "min": 5,
+            "max": 15
+          }
+        },
+        "wobble": {
+          "distance": 30,
+          "enable": true,
+          "speed": {
+            "min": -7,
+            "max": 7
+          }
+        },
+        "shape": {
+          "type": [
+            "circle",
+            "square"
+          ],
+          "options": {}
+        }
+      },
+      "responsive": [
+        {
+          "maxWidth": 1024,
+          "options": {
+            "particles": {
+              "move": {
+                "speed": {
+                  "min": 33,
+                  "max": 66
                 }
               }
             }
           }
-        ]
-      }
+        }
+      ]
     });
     
     // Auto-cleanup after 5 seconds
     setTimeout(() => {
-      tsParticles.domItem("tsparticles")?.destroy();
+      const container = document.getElementById("tsparticles");
+      if (container) {
+        container.innerHTML = "";
+      }
     }, 5000);
   }, []);
 
@@ -181,22 +184,26 @@ const Dashboard = () => {
 
     fetchCases();
     
-    // Setup particles container
-    const particlesContainer = document.createElement('div');
-    particlesContainer.id = 'tsparticles';
-    particlesContainer.style.position = 'fixed';
-    particlesContainer.style.top = '0';
-    particlesContainer.style.left = '0';
-    particlesContainer.style.width = '100%';
-    particlesContainer.style.height = '100%';
-    particlesContainer.style.pointerEvents = 'none';
-    particlesContainer.style.zIndex = '9999';
-    document.body.appendChild(particlesContainer);
+    // Setup particles container if it doesn't exist
+    if (!document.getElementById("tsparticles")) {
+      const particlesContainer = document.createElement('div');
+      particlesContainer.id = 'tsparticles';
+      particlesContainer.style.position = 'fixed';
+      particlesContainer.style.top = '0';
+      particlesContainer.style.left = '0';
+      particlesContainer.style.width = '100%';
+      particlesContainer.style.height = '100%';
+      particlesContainer.style.pointerEvents = 'none';
+      particlesContainer.style.zIndex = '9999';
+      document.body.appendChild(particlesContainer);
+    }
     
     // Cleanup function
     return () => {
-      tsParticles.domItem("tsparticles")?.destroy();
-      document.body.removeChild(particlesContainer);
+      const container = document.getElementById("tsparticles");
+      if (container) {
+        document.body.removeChild(container);
+      }
     };
   }, []);
 
