@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -19,11 +19,65 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
+import ReactCanvasConfetti from 'react-canvas-confetti';
+
+const canvasStyles = {
+  position: 'fixed',
+  pointerEvents: 'none',
+  width: '100%',
+  height: '100%',
+  top: 0,
+  left: 0,
+  zIndex: 999
+};
 
 const Dashboard = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
+  const refAnimationInstance = useRef(null);
+
+  const getInstance = useCallback((instance) => {
+    refAnimationInstance.current = instance;
+  }, []);
+
+  const makeShot = useCallback((particleRatio, opts) => {
+    refAnimationInstance.current &&
+      refAnimationInstance.current({
+        ...opts,
+        origin: { y: 0.7 },
+        particleCount: Math.floor(200 * particleRatio)
+      });
+  }, []);
+
+  const fireConfetti = useCallback(() => {
+    makeShot(0.25, {
+      spread: 26,
+      startVelocity: 55
+    });
+
+    makeShot(0.2, {
+      spread: 60
+    });
+
+    makeShot(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8
+    });
+
+    makeShot(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2
+    });
+
+    makeShot(0.1, {
+      spread: 120,
+      startVelocity: 45
+    });
+  }, [makeShot]);
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -47,6 +101,11 @@ const Dashboard = () => {
       
       // Update the local state with the updated case
       setCases(cases.map(c => c._id === id ? res.data : c));
+      
+      // Fire confetti when a case is closed
+      if (newStatus === 'closed') {
+        fireConfetti();
+      }
     } catch (err) {
       console.error('Error updating status:', err);
     }
@@ -68,6 +127,9 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {/* Confetti canvas */}
+      <ReactCanvasConfetti refConfetti={getInstance} style={canvasStyles} />
+      
       {/* Fixed header section with toolbar height offset */}
       <Box sx={{ height: '64px' }} /> {/* Spacer for navbar */}
       
