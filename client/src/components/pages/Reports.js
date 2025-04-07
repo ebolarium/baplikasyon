@@ -226,7 +226,7 @@ const Reports = () => {
                     Open Cases
                   </Typography>
                   <Box sx={{ 
-                    backgroundColor: theme.palette.blue[50], 
+                    backgroundColor: theme.palette.primary.light, 
                     borderRadius: '50%',
                     p: 1
                   }}>
