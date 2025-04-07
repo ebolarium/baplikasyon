@@ -14,12 +14,12 @@ import {
   Button,
   useTheme
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { format, parseISO, differenceInDays } from 'date-fns';
+import { format, parseISO, differenceInDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import BusinessIcon from '@mui/icons-material/Business';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const Reports = () => {
   const [cases, setCases] = useState([]);
@@ -83,7 +83,6 @@ const Reports = () => {
   // Calculate statistics
   const totalCases = cases.length;
   const openCases = cases.filter(c => c.status === 'open').length;
-  const closedCases = cases.filter(c => c.status === 'closed').length;
   
   // Calculate average resolution time for closed cases
   const closedCasesWithTime = cases.filter(c => c.status === 'closed' && c.closedAt);
@@ -99,38 +98,22 @@ const Reports = () => {
     avgResolutionTime = totalDays / closedCasesWithTime.length;
   }
 
-  // Prepare data for table
-  const companyCounts = {};
-  cases.forEach(c => {
-    if (companyCounts[c.companyName]) {
-      companyCounts[c.companyName]++;
-    } else {
-      companyCounts[c.companyName] = 1;
-    }
-  });
+  // Calculate this week's cases
+  const now = new Date();
+  const weekStart = startOfWeek(now);
+  const weekEnd = endOfWeek(now);
+  const thisWeekCases = cases.filter(c => {
+    const caseDate = parseISO(c.openedAt);
+    return isWithinInterval(caseDate, { start: weekStart, end: weekEnd });
+  }).length;
 
-  const companyRows = Object.keys(companyCounts).map((company, index) => ({
-    id: index,
-    company,
-    caseCount: companyCounts[company]
-  }));
-
-  const columns = [
-    { 
-      field: 'company', 
-      headerName: 'Company', 
-      flex: 1, 
-      headerAlign: 'left',
-      align: 'left'
-    },
-    { 
-      field: 'caseCount', 
-      headerName: 'Total Cases', 
-      width: 150,
-      headerAlign: 'center',
-      align: 'center'
-    }
-  ];
+  // Calculate this month's cases
+  const monthStart = startOfMonth(now);
+  const monthEnd = endOfMonth(now);
+  const thisMonthCases = cases.filter(c => {
+    const caseDate = parseISO(c.openedAt);
+    return isWithinInterval(caseDate, { start: monthStart, end: monthEnd });
+  }).length;
 
   return (
     <Box 
@@ -184,13 +167,13 @@ const Reports = () => {
             </CardContent>
           </Card>
 
-          {/* Stats cards */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          {/* Stats cards - top row */}
+          <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid item xs={6}>
               <Card
                 elevation={0}
                 sx={{ 
-                  height: 140, // Fixed square-like height
+                  height: 140,
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   transition: 'all 0.2s ease-in-out',
@@ -226,7 +209,7 @@ const Reports = () => {
               <Card
                 elevation={0}
                 sx={{ 
-                  height: 140, // Fixed square-like height
+                  height: 140,
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   transition: 'all 0.2s ease-in-out',
@@ -259,12 +242,87 @@ const Reports = () => {
               </Card>
             </Grid>
           </Grid>
+          
+          {/* Stats cards - second row */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={6}>
+              <Card
+                elevation={0}
+                sx={{ 
+                  height: 140,
+                  borderRadius: 2,
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
+                  }
+                }}
+              >
+                <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
+                      This Week
+                    </Typography>
+                    <Box sx={{ 
+                      backgroundColor: theme.palette.grey[100], 
+                      borderRadius: '50%',
+                      p: 0.75,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <CalendarTodayIcon color="primary" sx={{ fontSize: 18 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', mt: 1 }}>
+                    {thisWeekCases}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={6}>
+              <Card
+                elevation={0}
+                sx={{ 
+                  height: 140,
+                  borderRadius: 2,
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
+                  }
+                }}
+              >
+                <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
+                      This Month
+                    </Typography>
+                    <Box sx={{ 
+                      backgroundColor: theme.palette.grey[100], 
+                      borderRadius: '50%',
+                      p: 0.75,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <DateRangeIcon color="primary" sx={{ fontSize: 18 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', mt: 1 }}>
+                    {thisMonthCases}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
 
           {/* Average resolution time */}
           <Card 
             elevation={0}
             sx={{ 
-              mb: 3,
               borderRadius: 2,
               border: '1px solid rgba(0, 0, 0, 0.08)',
               transition: 'all 0.2s ease-in-out',
@@ -287,48 +345,6 @@ const Reports = () => {
               <Typography variant="caption" color="textSecondary">
                 Based on {closedCasesWithTime.length} closed cases
               </Typography>
-            </CardContent>
-          </Card>
-
-          {/* Cases by company */}
-          <Card 
-            elevation={0}
-            sx={{ 
-              borderRadius: 2,
-              border: '1px solid rgba(0, 0, 0, 0.08)'
-            }}
-          >
-            <CardContent sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Cases by Company
-                </Typography>
-                <BusinessIcon color="primary" sx={{ fontSize: 20 }} />
-              </Box>
-              <Box sx={{ height: 350 }}>
-                <DataGrid
-                  rows={companyRows}
-                  columns={columns}
-                  pageSize={5}
-                  rowsPerPageOptions={[5]}
-                  disableSelectionOnClick
-                  sx={{
-                    border: 'none',
-                    '& .MuiDataGrid-cell': {
-                      borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
-                      fontSize: '0.875rem'
-                    },
-                    '& .MuiDataGrid-columnHeaders': {
-                      backgroundColor: theme.palette.grey[50],
-                      borderBottom: 'none'
-                    },
-                    '& .MuiDataGrid-columnHeader': {
-                      fontWeight: 600,
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Box>
             </CardContent>
           </Card>
         </Container>
