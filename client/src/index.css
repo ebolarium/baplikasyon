@@ -1,5 +1,11 @@
-body {
+html, body, #root {
+  height: 100%;
   margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent outer scrolling */
+}
+
+body {
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -14,7 +20,6 @@ code {
 
 .container {
   padding: 1rem;
-  min-height: calc(100vh - 64px);
 }
 
 /* Animation for the FAB button */

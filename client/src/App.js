@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
 
 // Components
 import Navbar from './components/layout/Navbar';
@@ -65,17 +66,19 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Navbar />
-        <div className="container">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/case/new" element={<CaseForm />} />
-            <Route path="/case/:id" element={<CaseDetail />} />
-            <Route path="/case/edit/:id" element={<CaseForm />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+          <Navbar />
+          <Box sx={{ flexGrow: 1 }}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/case/new" element={<CaseForm />} />
+              <Route path="/case/:id" element={<CaseDetail />} />
+              <Route path="/case/edit/:id" element={<CaseForm />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Box>
+        </Box>
       </Router>
     </ThemeProvider>
   );

@@ -15,7 +15,7 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <AppBar position="static" sx={{ boxShadow: 2 }}>
+    <AppBar position="fixed" sx={{ boxShadow: 2, zIndex: theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <Box 
           component={RouterLink} 

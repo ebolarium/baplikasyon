@@ -59,6 +59,7 @@ const Dashboard = () => {
         justifyContent="center"
         alignItems="center"
         minHeight="80vh"
+        sx={{ mt: '64px' }} // Add top margin for the fixed navbar
       >
         <CircularProgress />
       </Box>
@@ -66,127 +67,222 @@ const Dashboard = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Paper 
-        elevation={0} 
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {/* Fixed header section with toolbar height offset */}
+      <Box sx={{ height: '64px' }} /> {/* Spacer for navbar */}
+      
+      {/* Fixed upper half with add button */}
+      <Box 
         sx={{ 
-          p: 2, 
-          mb: 3, 
-          borderRadius: 2,
-          backgroundColor: 'transparent' 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center', 
+          justifyContent: 'center',
+          pt: 4,
+          pb: 4,
+          position: 'sticky',
+          top: 64, // Height of navbar
+          zIndex: 10,
+          backgroundColor: theme.palette.background.default,
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}
       >
         <Typography 
-          variant="h4" 
+          variant="h5" 
           component="h1" 
           gutterBottom
           sx={{ 
-            color: theme.palette.text.primary,
-            fontWeight: 600
+            color: theme.palette.text.secondary,
+            mb: 4
           }}
         >
           Support Cases
         </Typography>
-      </Paper>
-      
-      {cases.length === 0 ? (
-        <Paper 
-          elevation={1} 
-          sx={{ 
-            p: 4, 
-            borderRadius: 2,
-            textAlign: 'center',
-            backgroundColor: '#fff' 
+        
+        <Fab
+          color="primary"
+          aria-label="add new case"
+          component={RouterLink}
+          to="/case/new"
+          sx={{
+            width: 96,
+            height: 96,
+            boxShadow: '0 8px 24px rgba(25, 118, 210, 0.5)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'scale(1.05)',
+              boxShadow: '0 12px 28px rgba(25, 118, 210, 0.6)',
+            }
           }}
         >
-          <Typography variant="body1" color="textSecondary">
-            No support cases found. Add a new case using the + button.
-          </Typography>
-        </Paper>
-      ) : (
-        <Grid container spacing={3}>
-          {cases.map((supportCase) => (
-            <Grid item xs={12} key={supportCase._id}>
-              <Card 
-                elevation={1}
-                sx={{ 
-                  borderLeft: supportCase.status === 'open' 
-                    ? `4px solid ${theme.palette.primary.main}` 
-                    : `4px solid ${theme.palette.grey[400]}`,
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                  }
-                }}
-              >
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography variant="h6" component="h2">
-                      {supportCase.companyName}
-                    </Typography>
-                    <Chip
-                      label={supportCase.status === 'open' ? 'Open' : 'Closed'}
-                      color={supportCase.status === 'open' ? 'primary' : 'default'}
-                      size="small"
-                      sx={{ fontWeight: 500 }}
-                    />
-                  </Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Contact: {supportCase.person}
-                  </Typography>
-                  <Typography variant="body2">
-                    {supportCase.topic}
-                  </Typography>
-                  <Divider sx={{ my: 1.5 }} />
-                  <Typography variant="caption" display="block" sx={{ color: theme.palette.text.secondary }}>
-                    Opened: {format(new Date(supportCase.openedAt), 'PPp')}
-                  </Typography>
-                  {supportCase.closedAt && (
-                    <Typography variant="caption" display="block" sx={{ color: theme.palette.text.secondary }}>
-                      Closed: {format(new Date(supportCase.closedAt), 'PPp')}
-                    </Typography>
-                  )}
-                </CardContent>
-                <CardActions sx={{ display: 'flex', justifyContent: 'space-between', px: 2, pb: 2 }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    component={RouterLink}
-                    to={`/case/${supportCase._id}`}
-                  >
-                    View Details
-                  </Button>
-                  <Button
-                    size="small"
-                    variant={supportCase.status === 'open' ? 'contained' : 'outlined'}
-                    color={supportCase.status === 'open' ? 'primary' : 'secondary'}
-                    onClick={() => toggleStatus(supportCase._id, supportCase.status)}
-                  >
-                    {supportCase.status === 'open' ? 'Mark as Closed' : 'Reopen Case'}
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-
-      <Fab
-        color="primary"
-        aria-label="add"
-        component={RouterLink}
-        to="/case/new"
-        sx={{
-          position: 'fixed',
-          bottom: theme.spacing(4),
-          right: theme.spacing(4),
-          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.5)'
+          <AddIcon sx={{ fontSize: 40 }} />
+        </Fab>
+        
+        <Typography 
+          variant="body1" 
+          color="textSecondary" 
+          sx={{ mt: 3, textAlign: 'center' }}
+        >
+          Tap to create a new support case
+        </Typography>
+      </Box>
+      
+      {/* Scrollable lower half with cases list */}
+      <Box 
+        sx={{ 
+          flexGrow: 1, 
+          overflow: 'auto',
+          p: 2,
+          pt: 4,
+          pb: 4
         }}
       >
-        <AddIcon />
-      </Fab>
-    </Container>
+        <Container maxWidth="md">
+          <Divider sx={{ mb: 4 }} />
+          
+          {cases.length === 0 ? (
+            <Paper 
+              elevation={1} 
+              sx={{ 
+                p: 4, 
+                borderRadius: 2,
+                textAlign: 'center',
+                backgroundColor: '#fff' 
+              }}
+            >
+              <Typography variant="body1" color="textSecondary">
+                No support cases found. Use the + button above to add a new case.
+              </Typography>
+            </Paper>
+          ) : (
+            <Grid container spacing={2}>
+              {cases.map((supportCase) => (
+                <Grid item xs={12} sm={6} md={6} key={supportCase._id}>
+                  <Card 
+                    elevation={0}
+                    sx={{ 
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRadius: 2,
+                      border: '1px solid rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease-in-out',
+                      backgroundColor: '#fff',
+                      '&:hover': {
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
+                      }
+                    }}
+                  >
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      px: 2,
+                      pt: 1.5,
+                      pb: 1
+                    }}>
+                      <Typography 
+                        variant="h6" 
+                        component="h2" 
+                        sx={{ 
+                          fontWeight: 'bold',
+                          fontSize: '1.1rem',
+                          color: theme.palette.text.primary
+                        }}
+                      >
+                        {supportCase.companyName}
+                      </Typography>
+                      <Chip
+                        label={supportCase.status === 'open' ? 'Open' : 'Closed'}
+                        color={supportCase.status === 'open' ? 'primary' : 'default'}
+                        size="small"
+                        sx={{ 
+                          fontWeight: 500,
+                          borderRadius: '20px',
+                          height: '24px'
+                        }}
+                      />
+                    </Box>
+                    
+                    <CardContent sx={{ pt: 0, pb: 0 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: theme.palette.text.secondary,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          lineHeight: 1.2,
+                          mt: 0.5
+                        }}
+                      >
+                        {supportCase.topic}
+                      </Typography>
+                    </CardContent>
+                    
+                    <CardActions sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      px: 2,
+                      py: 1.5,
+                      mt: 'auto',
+                      borderTop: '1px solid rgba(0, 0, 0, 0.06)'
+                    }}>
+                      <Button
+                        size="small"
+                        variant="text"
+                        component={RouterLink}
+                        to={`/case/${supportCase._id}`}
+                        sx={{ 
+                          fontWeight: 500, 
+                          color: '#1976d2',
+                          p: 0
+                        }}
+                      >
+                        VIEW DETAILS
+                      </Button>
+                      
+                      {supportCase.status === 'open' ? (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => toggleStatus(supportCase._id, supportCase.status)}
+                          sx={{ 
+                            fontWeight: 500,
+                            borderRadius: '50px',
+                            px: 2
+                          }}
+                        >
+                          CLOSE CASE
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => toggleStatus(supportCase._id, supportCase.status)}
+                          sx={{ 
+                            fontWeight: 500,
+                            borderRadius: '50px',
+                            px: 2
+                          }}
+                        >
+                          REOPEN
+                        </Button>
+                      )}
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Container>
+      </Box>
+    </Box>
   );
 };
 
