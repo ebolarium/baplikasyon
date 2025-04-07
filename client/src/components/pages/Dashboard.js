@@ -30,7 +30,7 @@ const Dashboard = () => {
   
   // Pagination state
   const [page, setPage] = useState(1);
-  const casesPerPage = 6; // Show 6 cases per page (3 rows of 2 cards on desktops)
+  const casesPerPage = 4; // Show 4 cases per page (2 rows of 2 cards on desktops)
   
   // Function to fire confetti based on the provided configuration
   const fireConfetti = useCallback(() => {
@@ -140,6 +140,12 @@ const Dashboard = () => {
   // Calculate pagination
   const totalPages = Math.ceil(cases.length / casesPerPage);
   
+  // Add debugging logs
+  console.log('Total cases:', cases.length);
+  console.log('Cases per page:', casesPerPage);
+  console.log('Total pages:', totalPages);
+  console.log('Current page:', page);
+  
   // Get current page's cases
   const indexOfLastCase = page * casesPerPage;
   const indexOfFirstCase = indexOfLastCase - casesPerPage;
@@ -153,6 +159,8 @@ const Dashboard = () => {
       return new Date(b.openedAt) - new Date(a.openedAt);
     })
     .slice(indexOfFirstCase, indexOfLastCase);
+    
+  console.log('Current cases:', currentCases.length);
 
   if (loading) {
     return (
@@ -374,7 +382,7 @@ const Dashboard = () => {
               </Grid>
               
               {/* Pagination controls */}
-              {totalPages > 1 && (
+              {totalPages > 1 ? (
                 <Box sx={{ mt: 4, mb: 2 }}>
                   <Divider sx={{ mb: 4 }} />
                   <Stack 
@@ -385,6 +393,7 @@ const Dashboard = () => {
                       alignItems: 'center' 
                     }}
                   >
+                    {console.log('Rendering pagination, totalPages:', totalPages)}
                     <Pagination 
                       count={totalPages} 
                       page={page} 
@@ -406,6 +415,13 @@ const Dashboard = () => {
                       Showing {indexOfFirstCase + 1} - {Math.min(indexOfLastCase, cases.length)} of {cases.length} cases
                     </Typography>
                   </Stack>
+                </Box>
+              ) : (
+                <Box sx={{ mt: 2 }}>
+                  {console.log('Not rendering pagination, totalPages:', totalPages)}
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    Showing all {cases.length} cases
+                  </Typography>
                 </Box>
               )}
             </>
