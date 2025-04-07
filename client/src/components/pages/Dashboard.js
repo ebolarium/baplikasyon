@@ -19,7 +19,11 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { format } from 'date-fns';
+import { tsParticles } from "tsparticles-engine";
 import { loadSlim } from "tsparticles-slim";
+
+// Initialize tsParticles engine once
+loadSlim(tsParticles);
 
 const Dashboard = () => {
   const [cases, setCases] = useState([]);
@@ -27,147 +31,178 @@ const Dashboard = () => {
   const theme = useTheme();
   
   // Function to fire confetti using tsParticles
-  const fireConfetti = useCallback(() => {
-    // Clear existing particles if any
-    const existingContainer = document.getElementById("tsparticles");
-    if (existingContainer) {
-      existingContainer.innerHTML = "";
-    }
-    
-    // Load new confetti particles with the provided configuration
-    loadSlim("tsparticles", {
-      "fullScreen": {
-        "zIndex": 1
-      },
-      "emitters": {
-        "position": {
-          "x": 50,
-          "y": 100
-        },
-        "rate": {
-          "quantity": 5,
-          "delay": 0.15
-        }
-      },
-      "particles": {
-        "color": {
-          "value": [
-            "#1E00FF",
-            "#FF0061",
-            "#E1FF00",
-            "#00FF9E"
-          ]
-        },
-        "move": {
-          "decay": 0.05,
-          "direction": "top",
-          "enable": true,
-          "gravity": {
-            "enable": true
-          },
-          "outModes": {
-            "top": "none",
-            "default": "destroy"
-          },
-          "speed": {
-            "min": 50,
-            "max": 100
-          }
-        },
-        "number": {
-          "value": 0
-        },
-        "opacity": {
-          "value": 1
-        },
-        "rotate": {
-          "value": {
-            "min": 0,
-            "max": 360
-          },
-          "direction": "random",
-          "animation": {
-            "enable": true,
-            "speed": 30
-          }
-        },
-        "tilt": {
-          "direction": "random",
-          "enable": true,
-          "value": {
-            "min": 0,
-            "max": 360
-          },
-          "animation": {
-            "enable": true,
-            "speed": 30
-          }
-        },
-        "size": {
-          "value": 3,
-          "animation": {
-            "enable": true,
-            "startValue": "min",
-            "count": 1,
-            "speed": 16,
-            "sync": true
-          }
-        },
-        "roll": {
-          "darken": {
-            "enable": true,
-            "value": 25
-          },
-          "enlighten": {
-            "enable": true,
-            "value": 25
-          },
-          "enable": true,
-          "speed": {
-            "min": 5,
-            "max": 15
-          }
-        },
-        "wobble": {
-          "distance": 30,
-          "enable": true,
-          "speed": {
-            "min": -7,
-            "max": 7
-          }
-        },
-        "shape": {
-          "type": [
-            "circle",
-            "square"
-          ],
-          "options": {}
-        }
-      },
-      "responsive": [
-        {
-          "maxWidth": 1024,
-          "options": {
-            "particles": {
-              "move": {
-                "speed": {
-                  "min": 33,
-                  "max": 66
-                }
+  const fireConfetti = useCallback(async () => {
+    try {
+      // Remove existing container if it exists
+      const existingContainer = document.getElementById("tsparticles");
+      if (existingContainer) {
+        document.body.removeChild(existingContainer);
+      }
+      
+      // Create a new container
+      const container = document.createElement('div');
+      container.id = 'tsparticles';
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '100%';
+      container.style.height = '100%';
+      container.style.pointerEvents = 'none';
+      container.style.zIndex = '9999';
+      document.body.appendChild(container);
+      
+      // Initialize particles
+      await tsParticles.load("tsparticles", {
+        fullScreen: false,
+        emitters: [
+          {
+            life: { duration: 5, count: 1 },
+            position: { x: 50, y: 70 },
+            rate: { delay: 0.1, quantity: 5 },
+            particles: {
+              color: {
+                value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"]
+              },
+              move: {
+                direction: "top",
+                enable: true,
+                outModes: { default: "destroy", top: "none" },
+                speed: { min: 50, max: 100 }
+              },
+              rotate: {
+                value: { min: 0, max: 360 },
+                direction: "random",
+                animation: { enable: true, speed: 30 }
+              },
+              tilt: {
+                direction: "random",
+                enable: true,
+                value: { min: 0, max: 360 },
+                animation: { enable: true, speed: 30 }
+              },
+              size: { value: 3 },
+              roll: {
+                enable: true,
+                speed: { min: 5, max: 15 }
+              },
+              wobble: {
+                distance: 30,
+                enable: true,
+                speed: { min: -7, max: 7 }
+              },
+              shape: {
+                type: ["circle", "square"]
               }
             }
           }
+        ],
+        particles: {
+          color: {
+            value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"]
+          },
+          move: {
+            decay: 0.05,
+            direction: "top",
+            enable: true,
+            gravity: {
+              enable: true
+            },
+            outModes: {
+              top: "none",
+              default: "destroy"
+            },
+            speed: {
+              min: 50,
+              max: 100
+            }
+          },
+          number: {
+            value: 0
+          },
+          opacity: {
+            value: 1
+          },
+          rotate: {
+            value: {
+              min: 0,
+              max: 360
+            },
+            direction: "random",
+            animation: {
+              enable: true,
+              speed: 30
+            }
+          },
+          tilt: {
+            direction: "random",
+            enable: true,
+            value: {
+              min: 0,
+              max: 360
+            },
+            animation: {
+              enable: true,
+              speed: 30
+            }
+          },
+          size: {
+            value: 3,
+            animation: {
+              enable: true,
+              startValue: "min",
+              count: 1,
+              speed: 16,
+              sync: true
+            }
+          },
+          roll: {
+            darken: {
+              enable: true,
+              value: 25
+            },
+            enlighten: {
+              enable: true,
+              value: 25
+            },
+            enable: true,
+            speed: {
+              min: 5,
+              max: 15
+            }
+          },
+          wobble: {
+            distance: 30,
+            enable: true,
+            speed: {
+              min: -7,
+              max: 7
+            }
+          },
+          shape: {
+            type: [
+              "circle",
+              "square"
+            ],
+            options: {}
+          }
         }
-      ]
-    });
-    
-    // Auto-cleanup after 5 seconds
-    setTimeout(() => {
-      const container = document.getElementById("tsparticles");
-      if (container) {
-        container.innerHTML = "";
-      }
-    }, 5000);
+      });
+      
+      // Auto-cleanup after 5 seconds
+      setTimeout(() => {
+        try {
+          const container = document.getElementById("tsparticles");
+          if (container) {
+            tsParticles.destroy();
+            document.body.removeChild(container);
+          }
+        } catch (err) {
+          console.error("Error cleaning up particles:", err);
+        }
+      }, 5000);
+    } catch (err) {
+      console.error("Error initializing confetti:", err);
+    }
   }, []);
 
   useEffect(() => {
@@ -183,28 +218,6 @@ const Dashboard = () => {
     };
 
     fetchCases();
-    
-    // Setup particles container if it doesn't exist
-    if (!document.getElementById("tsparticles")) {
-      const particlesContainer = document.createElement('div');
-      particlesContainer.id = 'tsparticles';
-      particlesContainer.style.position = 'fixed';
-      particlesContainer.style.top = '0';
-      particlesContainer.style.left = '0';
-      particlesContainer.style.width = '100%';
-      particlesContainer.style.height = '100%';
-      particlesContainer.style.pointerEvents = 'none';
-      particlesContainer.style.zIndex = '9999';
-      document.body.appendChild(particlesContainer);
-    }
-    
-    // Cleanup function
-    return () => {
-      const container = document.getElementById("tsparticles");
-      if (container) {
-        document.body.removeChild(container);
-      }
-    };
   }, []);
 
   const toggleStatus = async (id, currentStatus) => {
@@ -218,7 +231,7 @@ const Dashboard = () => {
       // Fire confetti when a case is closed
       if (newStatus === 'closed') {
         console.log('Triggering confetti with tsParticles!');
-        fireConfetti();
+        await fireConfetti();
       }
     } catch (err) {
       console.error('Error updating status:', err);
