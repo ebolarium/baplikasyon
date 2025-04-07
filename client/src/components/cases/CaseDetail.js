@@ -121,17 +121,17 @@ const CaseDetail = () => {
           Back to cases
         </Button>
         
-        {/* Header section */}
+        {/* Single card with all content */}
         <Card 
           elevation={0} 
           sx={{ 
-            mb: 3, 
             borderRadius: 2, 
             border: '1px solid rgba(0, 0, 0, 0.08)',
             overflow: 'visible'
           }}
         >
           <CardContent sx={{ p: 3 }}>
+            {/* Header section (moved from separate card) */}
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
                 {supportCase.companyName}
@@ -151,18 +151,10 @@ const CaseDetail = () => {
             <Typography variant="h6" color="textSecondary" gutterBottom>
               {supportCase.topic}
             </Typography>
-          </CardContent>
-        </Card>
-        
-        {/* Details section with actions merged in */}
-        <Card 
-          elevation={0} 
-          sx={{ 
-            borderRadius: 2, 
-            border: '1px solid rgba(0, 0, 0, 0.08)' 
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
+            
+            <Divider sx={{ my: 3 }} />
+            
+            {/* Details section */}
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
               Case Details
             </Typography>
@@ -217,53 +209,60 @@ const CaseDetail = () => {
               </Grid>
             </Grid>
             
-            {/* Actions section moved here */}
+            {/* Actions section */}
             <Divider sx={{ my: 3 }} />
             
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-              <Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
                 <Button
+                  fullWidth
                   variant="contained"
                   color={supportCase.status === 'open' ? 'primary' : 'secondary'}
                   onClick={toggleStatus}
                   sx={{ 
                     fontWeight: 500,
                     borderRadius: '50px',
-                    px: 3
+                    py: 1
                   }}
                 >
                   {supportCase.status === 'open' ? 'CLOSE CASE' : 'REOPEN CASE'}
                 </Button>
-              </Box>
+              </Grid>
               
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Grid item xs={6} sm={3}>
                 <Button
+                  fullWidth
                   variant="outlined"
                   startIcon={<EditIcon />}
                   component={RouterLink}
                   to={`/case/edit/${id}`}
                   sx={{ 
                     borderRadius: '50px',
-                    fontWeight: 500
+                    fontWeight: 500,
+                    py: 1
                   }}
                 >
                   EDIT
                 </Button>
-                
+              </Grid>
+              
+              <Grid item xs={6} sm={3}>
                 <Button
+                  fullWidth
                   variant="outlined"
                   color="error"
                   startIcon={<DeleteIcon />}
                   onClick={() => setOpenDialog(true)}
                   sx={{ 
                     borderRadius: '50px',
-                    fontWeight: 500
+                    fontWeight: 500,
+                    py: 1
                   }}
                 >
                   DELETE
                 </Button>
-              </Box>
-            </Box>
+              </Grid>
+            </Grid>
           </CardContent>
         </Card>
         
