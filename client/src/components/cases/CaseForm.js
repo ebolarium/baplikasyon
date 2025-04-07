@@ -150,46 +150,18 @@ const CaseForm = () => {
   
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '64px' }}>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 6, flexGrow: 1 }}>
-        {/* Back button */}
+      <Container maxWidth="lg" sx={{ mt: 0, mb: 0, flexGrow: 1, py: 0 }}>
+        {/* Back button now directly attached to navbar */}
         <Button
           component={RouterLink}
           to="/"
           startIcon={<ArrowBackIcon />}
-          sx={{ mb: 3, fontWeight: 500 }}
+          sx={{ mb: 0, fontWeight: 500, py: 1 }}
         >
           Back to dashboard
         </Button>
         
-        {/* Form header */}
-        <Card 
-          elevation={0} 
-          sx={{ 
-            mb: 3, 
-            borderRadius: 2, 
-            border: '1px solid rgba(0, 0, 0, 0.08)',
-            overflow: 'visible'
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography 
-                variant="h5" 
-                component="h1" 
-                sx={{ fontWeight: 'bold' }}
-              >
-                {isEdit ? 'Edit Support Case' : 'New Support Case'}
-              </Typography>
-              {isEdit ? (
-                <EditIcon color="primary" sx={{ fontSize: 28 }} />
-              ) : (
-                <AddIcon color="primary" sx={{ fontSize: 28 }} />
-              )}
-            </Box>
-          </CardContent>
-        </Card>
-        
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ mt: 0 }}>
           {/* Form column */}
           <Grid item xs={12} md={8}>
             <Card
@@ -197,173 +169,208 @@ const CaseForm = () => {
               sx={{ 
                 borderRadius: 2,
                 border: '1px solid rgba(0, 0, 0, 0.08)',
-                height: '100%'
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              <CardContent sx={{ p: 3 }}>
-                {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-                
-                <Box component="form" onSubmit={handleSubmit}>
-                  <TextField
-                    name="companyName"
-                    label="Company Name"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    required
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    inputRef={companyInputRef}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <BusinessIcon color="action" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: formData.companyName && (
-                        <InputAdornment position="end">
-                          <IconButton 
-                            edge="end" 
-                            onClick={() => handleClearField('companyName')}
-                            size="small"
-                          >
-                            <ClearIcon fontSize="small" />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                  
-                  <TextField
-                    name="person"
-                    label="Contact Person"
-                    value={formData.person}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    required
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonIcon color="action" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: formData.person && (
-                        <InputAdornment position="end">
-                          <IconButton 
-                            edge="end" 
-                            onClick={() => handleClearField('person')}
-                            size="small"
-                          >
-                            <ClearIcon fontSize="small" />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                  
-                  <TextField
-                    name="topic"
-                    label="Topic"
-                    value={formData.topic}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    required
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SubjectIcon color="action" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: formData.topic && (
-                        <InputAdornment position="end">
-                          <IconButton 
-                            edge="end" 
-                            onClick={() => handleClearField('topic')}
-                            size="small"
-                          >
-                            <ClearIcon fontSize="small" />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                  
-                  <TextField
-                    name="details"
-                    label="Details"
-                    value={formData.details}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    multiline
-                    rows={4}
-                    required
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <DescriptionIcon color="action" />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                  
-                  {isEdit && (
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={formData.status === 'closed'}
-                          onChange={handleSwitchChange}
-                          color="primary"
-                        />
-                      }
-                      label="Mark as Closed"
-                      sx={{ mt: 1, mb: 2 }}
-                    />
+              {/* Form header now merged with form content */}
+              <CardContent sx={{ p: 3, pb: 1 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                  <Typography 
+                    variant="h5" 
+                    component="h1" 
+                    sx={{ fontWeight: 'bold' }}
+                  >
+                    {isEdit ? 'Edit Support Case' : 'New Support Case'}
+                  </Typography>
+                  {isEdit ? (
+                    <EditIcon color="primary" sx={{ fontSize: 28 }} />
+                  ) : (
+                    <AddIcon color="primary" sx={{ fontSize: 28 }} />
                   )}
+                </Box>
+                
+                <Divider sx={{ mt: 1, mb: 2 }} />
+                
+                {/* Scrollable form container */}
+                <Box 
+                  sx={{ 
+                    overflow: 'auto',
+                    maxHeight: {
+                      xs: '60vh',
+                      sm: '65vh',
+                      md: '70vh'
+                    }
+                  }}
+                >
+                  {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
                   
-                  <Divider sx={{ my: 3 }} />
-                  
-                  <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-                    <Button
+                  <Box component="form" onSubmit={handleSubmit}>
+                    <TextField
+                      name="companyName"
+                      label="Company Name"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="normal"
+                      required
                       variant="outlined"
-                      onClick={() => navigate('/')}
-                      disabled={loading}
-                      sx={{ 
-                        borderRadius: '50px',
-                        px: 3
+                      sx={{ mb: 2 }}
+                      inputRef={companyInputRef}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <BusinessIcon color="action" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: formData.companyName && (
+                          <InputAdornment position="end">
+                            <IconButton 
+                              edge="end" 
+                              onClick={() => handleClearField('companyName')}
+                              size="small"
+                            >
+                              <ClearIcon fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        )
                       }}
-                    >
-                      CANCEL
-                    </Button>
+                    />
                     
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      disabled={loading || !formIsValid}
-                      sx={{ 
-                        borderRadius: '50px',
-                        px: 3
+                    <TextField
+                      name="person"
+                      label="Contact Person"
+                      value={formData.person}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="normal"
+                      required
+                      variant="outlined"
+                      sx={{ mb: 2 }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PersonIcon color="action" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: formData.person && (
+                          <InputAdornment position="end">
+                            <IconButton 
+                              edge="end" 
+                              onClick={() => handleClearField('person')}
+                              size="small"
+                            >
+                              <ClearIcon fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        )
                       }}
-                    >
-                      {loading ? (
-                        <CircularProgress size={24} />
-                      ) : (
-                        isEdit ? 'UPDATE CASE' : 'CREATE CASE'
-                      )}
-                    </Button>
+                    />
+                    
+                    <TextField
+                      name="topic"
+                      label="Topic"
+                      value={formData.topic}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="normal"
+                      required
+                      variant="outlined"
+                      sx={{ mb: 2 }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SubjectIcon color="action" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: formData.topic && (
+                          <InputAdornment position="end">
+                            <IconButton 
+                              edge="end" 
+                              onClick={() => handleClearField('topic')}
+                              size="small"
+                            >
+                              <ClearIcon fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                    
+                    <TextField
+                      name="details"
+                      label="Details"
+                      value={formData.details}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="normal"
+                      multiline
+                      rows={4}
+                      required
+                      variant="outlined"
+                      sx={{ mb: 2 }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <DescriptionIcon color="action" />
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                    
+                    {isEdit && (
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={formData.status === 'closed'}
+                            onChange={handleSwitchChange}
+                            color="primary"
+                          />
+                        }
+                        label="Mark as Closed"
+                        sx={{ mt: 1, mb: 2 }}
+                      />
+                    )}
                   </Box>
                 </Box>
               </CardContent>
+              
+              {/* Footer with buttons - fixed at bottom of card */}
+              <Box sx={{ mt: 'auto', p: 3, pt: 0 }}>
+                <Divider sx={{ mb: 3 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate('/')}
+                    disabled={loading}
+                    sx={{ 
+                      borderRadius: '50px',
+                      px: 3
+                    }}
+                  >
+                    CANCEL
+                  </Button>
+                  
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={loading || !formIsValid}
+                    onClick={handleSubmit}
+                    sx={{ 
+                      borderRadius: '50px',
+                      px: 3
+                    }}
+                  >
+                    {loading ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      isEdit ? 'UPDATE CASE' : 'CREATE CASE'
+                    )}
+                  </Button>
+                </Box>
+              </Box>
             </Card>
           </Grid>
           
@@ -374,22 +381,24 @@ const CaseForm = () => {
               sx={{ 
                 borderRadius: 2,
                 border: '1px solid rgba(0, 0, 0, 0.08)',
-                height: '100%'
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <Typography 
                   variant="h6" 
                   component="h2" 
                   sx={{ 
                     fontWeight: 'bold',
-                    mb: 3
+                    mb: 2
                   }}
                 >
                   Preview
                 </Typography>
                 
-                <Divider sx={{ mb: 3 }} />
+                <Divider sx={{ mb: 2 }} />
                 
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">
@@ -397,104 +406,117 @@ const CaseForm = () => {
                   </Typography>
                 </Box>
                 
-                {/* Case card preview */}
-                <Card 
-                  elevation={0}
+                {/* Scrollable preview container */}
+                <Box 
                   sx={{ 
-                    display: 'flex',
-                    flexDirection: 'column',
-                    borderRadius: 2,
-                    border: '1px solid rgba(0, 0, 0, 0.08)',
-                    transition: 'all 0.2s ease-in-out',
-                    backgroundColor: '#fff',
-                    mt: 2
+                    overflow: 'auto', 
+                    flexGrow: 1,
+                    maxHeight: {
+                      xs: '40vh',
+                      sm: '45vh',
+                      md: '60vh'
+                    }
                   }}
                 >
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    px: 2,
-                    pt: 1.5,
-                    pb: 1
-                  }}>
-                    <Typography 
-                      variant="h6" 
-                      component="h2" 
-                      sx={{ 
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem',
-                        color: theme.palette.text.primary
-                      }}
-                    >
-                      {formData.companyName || 'Company Name'}
-                    </Typography>
-                    <Chip
-                      label="Open"
-                      color="primary"
-                      size="small"
-                      sx={{ 
-                        fontWeight: 500,
-                        borderRadius: '20px',
-                        height: '24px'
-                      }}
-                    />
-                  </Box>
-                  
-                  <CardContent sx={{ pt: 0, pb: 0 }}>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: theme.palette.text.secondary,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        lineHeight: 1.2,
-                        mt: 0.5
-                      }}
-                    >
-                      {formData.topic || 'Case topic will appear here'}
-                    </Typography>
-                  </CardContent>
-                  
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    px: 2,
-                    py: 1.5,
-                    mt: 'auto',
-                    borderTop: '1px solid rgba(0, 0, 0, 0.06)'
-                  }}>
-                    <Button
-                      size="small"
-                      variant="text"
-                      sx={{ 
-                        fontWeight: 500, 
-                        color: '#1976d2',
-                        p: 0
-                      }}
-                    >
-                      VIEW DETAILS
-                    </Button>
+                  {/* Case card preview */}
+                  <Card 
+                    elevation={0}
+                    sx={{ 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRadius: 2,
+                      border: '1px solid rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease-in-out',
+                      backgroundColor: '#fff',
+                      mt: 2
+                    }}
+                  >
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      px: 2,
+                      pt: 1.5,
+                      pb: 1
+                    }}>
+                      <Typography 
+                        variant="h6" 
+                        component="h2" 
+                        sx={{ 
+                          fontWeight: 'bold',
+                          fontSize: '1.1rem',
+                          color: theme.palette.text.primary
+                        }}
+                      >
+                        {formData.companyName || 'Company Name'}
+                      </Typography>
+                      <Chip
+                        label="Open"
+                        color="primary"
+                        size="small"
+                        sx={{ 
+                          fontWeight: 500,
+                          borderRadius: '20px',
+                          height: '24px'
+                        }}
+                      />
+                    </Box>
                     
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      sx={{ 
-                        fontWeight: 500,
-                        borderRadius: '50px',
-                        px: 2
-                      }}
-                    >
-                      CLOSE CASE
-                    </Button>
-                  </Box>
-                </Card>
+                    <CardContent sx={{ pt: 0, pb: 0 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: theme.palette.text.secondary,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          lineHeight: 1.2,
+                          mt: 0.5
+                        }}
+                      >
+                        {formData.topic || 'Case topic will appear here'}
+                      </Typography>
+                    </CardContent>
+                    
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      px: 2,
+                      py: 1.5,
+                      mt: 'auto',
+                      borderTop: '1px solid rgba(0, 0, 0, 0.06)'
+                    }}>
+                      <Button
+                        size="small"
+                        variant="text"
+                        sx={{ 
+                          fontWeight: 500, 
+                          color: '#1976d2',
+                          p: 0
+                        }}
+                      >
+                        VIEW DETAILS
+                      </Button>
+                      
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        sx={{ 
+                          fontWeight: 500,
+                          borderRadius: '50px',
+                          px: 2
+                        }}
+                      >
+                        CLOSE CASE
+                      </Button>
+                    </Box>
+                  </Card>
+                </Box>
                 
-                <Box sx={{ mt: 4 }}>
+                <Box sx={{ mt: 2 }}>
                   <Typography variant="body2" color="text.secondary">
                     Fill in all required fields to create the support case.
                   </Typography>
