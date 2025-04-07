@@ -109,8 +109,8 @@ const CaseForm = () => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="80vh"
-        sx={{ mt: '64px' }}
+        minHeight="100vh"
+        sx={{ paddingTop: '64px' }}
       >
         <CircularProgress />
       </Box>
@@ -118,10 +118,7 @@ const CaseForm = () => {
   }
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Spacer for fixed navbar */}
-      <Box sx={{ height: '64px' }} />
-      
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '64px' }}>
       <Container maxWidth="md" sx={{ mt: 4, mb: 6, flexGrow: 1 }}>
         {/* Back button */}
         <Button

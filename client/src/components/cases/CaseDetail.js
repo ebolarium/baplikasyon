@@ -76,8 +76,8 @@ const CaseDetail = () => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="80vh"
-        sx={{ mt: '64px' }}
+        minHeight="100vh"
+        sx={{ paddingTop: '64px' }}
       >
         <CircularProgress />
       </Box>
@@ -86,7 +86,7 @@ const CaseDetail = () => {
   
   if (error) {
     return (
-      <Box sx={{ mt: '90px', px: 2 }}>
+      <Box sx={{ paddingTop: '64px', px: 2 }}>
         <Container maxWidth="md">
           <Paper elevation={0} sx={{ p: 4, borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.08)' }}>
             <Typography color="error" align="center">
@@ -109,10 +109,7 @@ const CaseDetail = () => {
   }
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Spacer for fixed navbar */}
-      <Box sx={{ height: '64px' }} />
-      
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '64px' }}>
       <Container maxWidth="md" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
         {/* Back button */}
         <Button
