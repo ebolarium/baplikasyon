@@ -156,7 +156,17 @@ const Dashboard = () => {
             </Paper>
           ) : (
             <Grid container spacing={2}>
-              {cases.map((supportCase) => (
+              {/* Sort cases - open first, then closed */}
+              {cases
+                .sort((a, b) => {
+                  // First sort by status (open cases first)
+                  if (a.status === 'open' && b.status !== 'open') return -1;
+                  if (a.status !== 'open' && b.status === 'open') return 1;
+                  
+                  // For cases with the same status, sort by date (newest first)
+                  return new Date(b.openedAt) - new Date(a.openedAt);
+                })
+                .map((supportCase) => (
                 <Grid item xs={12} sm={6} md={6} key={supportCase._id}>
                   <Card 
                     elevation={0}
@@ -167,7 +177,7 @@ const Dashboard = () => {
                       borderRadius: 2,
                       border: '1px solid rgba(0, 0, 0, 0.08)',
                       transition: 'all 0.2s ease-in-out',
-                      backgroundColor: '#fff',
+                      backgroundColor: supportCase.status === 'open' ? '#fff' : '#f9f9f9', // Lighter background for closed cases
                       '&:hover': {
                         transform: 'translateY(-3px)',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
