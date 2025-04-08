@@ -21,7 +21,7 @@ const initTransporter = async () => {
       port: 587,
       secure: false,
       auth: {
-        user: '89e1fd001@smtp-brevo.com',
+        user: '89e1fd001',
         pass: 'T6G2tOzdHbCmfS5V'
       },
       tls: {
@@ -82,7 +82,7 @@ const sendEmail = async (options) => {
     // Set default sender
     const from = {
       name: 'Odak Kimya Destek',
-      address: '89e1fd001@smtp-brevo.com' // Use the SMTP login address as the sender
+      address: '89e1fd001@smtp-brevo.com'
     };
     
     console.log(`Sending from: ${from.address} (${from.name})`);
