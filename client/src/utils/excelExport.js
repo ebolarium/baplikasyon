@@ -202,27 +202,23 @@ export const exportCasesToExcel = async (cases, emailTo = null) => {
  */
 export const exportCasesToEmail = async () => {
   try {
-    // Instead of calling the email endpoint, just download the Excel file locally
-    const success = await exportUserCasesToExcel();
+    // Call the export-email endpoint to generate and send Excel via email
+    const response = await api.post('/cases/export-email');
     
-    if (success) {
-      // Show a funny Turkish message that the file has been downloaded
-      const funnyMessages = [
-        "Excel dosyanız indirildi! E-posta göndermekle uğraşmadan direkt bilgisayarınızda! Ne güzel değil mi? 🎉📊",
-        "Dosyanız hazır! E-posta kutunuzu meşgul etmeye gerek kalmadı. Haydi kolay gelsin! 😄💼",
-        "Vay be! Artık dosyalarınız e-posta yolculuğuna çıkmadan direkt elinizde! Modern dünya çok güzel! 🚀📈",
-        "Excel dosyanız ayağınıza geldi! Eskiden bunu e-posta ile gönderirdik, şimdi teknoloji harika! 🤖📊"
-      ];
-      
-      // Pick a random funny message
-      const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
-      alert(randomMessage);
+    // Show success message
+    alert('Destek vakaları raporu e-posta adresinize gönderilmiştir. Lütfen e-posta kutunuzu kontrol ediniz.');
+    
+    return true;
+  } catch (error) {
+    console.error('Error exporting cases to email:', error);
+    
+    // Show appropriate error message
+    if (error.response && error.response.status === 404) {
+      alert('E-posta gönderilemedi. Dışa aktarılacak vaka bulunamadı.');
+    } else {
+      alert('E-posta gönderilirken bir hata oluştu. Lütfen tekrar deneyin.');
     }
     
-    return success;
-  } catch (error) {
-    console.error('Error exporting cases:', error);
-    alert('Dosya indirilemedi! Teknoloji bazen bizi yarı yolda bırakır... 😔 Tekrar deneyin!');
     return false;
   }
 };
