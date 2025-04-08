@@ -15,14 +15,45 @@ const generateAndSendWeeklyReport = async (user) => {
   try {
     console.log(`Generating weekly report for user: ${user.email}`);
     
-    // Get cases data - adjust this query based on your requirements
-    // For example, you might want to filter by date or status
-    const cases = await SupportCase.find()
-      .sort({ openedAt: -1 })
-      .lean();
+    // Get one week ago date
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    // Get current date for filename and email
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+    
+    // Get cases from the last week
+    const cases = await SupportCase.find({
+      $or: [
+        // Cases created in the last week
+        { openedAt: { $gte: oneWeekAgo } },
+        // Cases updated in the last week
+        { updatedAt: { $gte: oneWeekAgo } },
+        // Open cases (regardless of when they were created)
+        { status: { $ne: 'Closed' } }
+      ]
+    })
+    .sort({ openedAt: -1 })
+    .lean();
     
     if (!cases || cases.length === 0) {
-      console.log(`No cases found for weekly report to ${user.email}`);
+      console.log(`No cases found for weekly report to ${user.email}. Sending empty report notification.`);
+      
+      // Send email notifying no cases this week
+      await emailService.sendEmail({
+        to: user.email,
+        subject: `Haftalık Destek Raporu - ${dateStr} - Vaka Yok`,
+        text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nBu hafta hiç destek vakası oluşturulmadı veya güncellenmedi. Tüm müşterilerimiz memnun görünüyor!\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
+        html: `
+          <h2>Haftalık Destek Raporu</h2>
+          <p>Merhaba ${user.name || 'Değerli Kullanıcı'},</p>
+          <p>Bu hafta hiç destek vakası oluşturulmadı veya güncellenmedi. Tüm müşterilerimiz memnun görünüyor!</p>
+          <p>İyi çalışmalar dileriz,<br>Odak Kimya Destek Ekibi</p>
+        `
+      });
+      
+      console.log(`Empty report notification sent to ${user.email}`);
       return;
     }
     
@@ -35,7 +66,8 @@ const generateAndSendWeeklyReport = async (user) => {
       'Details': c.details,
       'Status': c.status,
       'Opened At': new Date(c.openedAt).toLocaleString(),
-      'Closed At': c.closedAt ? new Date(c.closedAt).toLocaleString() : 'N/A'
+      'Closed At': c.closedAt ? new Date(c.closedAt).toLocaleString() : 'N/A',
+      'Last Updated': new Date(c.updatedAt).toLocaleString()
     }));
     
     // Create a workbook
@@ -54,15 +86,13 @@ const generateAndSendWeeklyReport = async (user) => {
       { wch: 10 }, // Status
       { wch: 20 }, // Opened At
       { wch: 20 }, // Closed At
+      { wch: 20 }, // Last Updated
     ];
     worksheet['!cols'] = columnWidths;
     
     // Add worksheet to workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Support Cases');
     
-    // Get current date for filename
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
     const filename = `SupportCases_${dateStr}.xlsx`;
     const filePath = path.join(__dirname, '..', 'temp', filename);
     
@@ -80,12 +110,12 @@ const generateAndSendWeeklyReport = async (user) => {
     // Send email with attachment
     await emailService.sendEmail({
       to: user.email,
-      subject: `Haftalık Destek Raporu - ${dateStr}`,
-      text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nHaftalık destek vaka raporunuz ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
+      subject: `Haftalık Destek Raporu - ${dateStr} - ${cases.length} Vaka`,
+      text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nHaftalık destek vaka raporunuz ektedir. Bu rapor, son bir haftada oluşturulan veya güncellenen ${cases.length} vakayı içermektedir.\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
       html: `
         <h2>Haftalık Destek Raporu</h2>
         <p>Merhaba ${user.name || 'Değerli Kullanıcı'},</p>
-        <p>Haftalık destek vaka raporunuz ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.</p>
+        <p>Haftalık destek vaka raporunuz ektedir. Bu rapor, son bir haftada oluşturulan veya güncellenen <strong>${cases.length} vakayı</strong> içermektedir.</p>
         <p>İyi çalışmalar dileriz,<br>Odak Kimya Destek Ekibi</p>
       `,
       attachments: [
@@ -96,7 +126,7 @@ const generateAndSendWeeklyReport = async (user) => {
       ]
     });
     
-    console.log(`Weekly report sent to ${user.email}`);
+    console.log(`Weekly report with ${cases.length} cases sent to ${user.email}`);
     
     // Clean up temporary file
     fs.unlinkSync(filePath);
