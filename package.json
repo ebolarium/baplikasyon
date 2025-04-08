@@ -8,7 +8,7 @@
     "server": "nodemon server.js",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "cd client && npm install && npm run build",
+    "build": "bash ./render-build.sh",
     "fallback": "node server-fallback.js"
   },
   "repository": {
@@ -35,9 +35,9 @@
     "canvas-confetti": "^1.9.3",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^7.8.6",
     "morgan": "^1.10.0",
     "react-canvas-confetti": "^2.0.7",
     "react-router-dom": "^7.5.0",
@@ -46,8 +46,6 @@
     "tsparticles-shape-star": "^2.12.0",
     "tsparticles-slim": "^2.12.0",
     "xlsx": "^0.18.5"
-  },
-  "optionalDependencies": {
   },
   "devDependencies": {
     "concurrently": "^8.2.1",
