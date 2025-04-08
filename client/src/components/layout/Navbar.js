@@ -8,10 +8,16 @@ import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import TableViewIcon from '@mui/icons-material/TableView';
+import EmailIcon from '@mui/icons-material/Email';
 import CircularProgress from '@mui/material/CircularProgress';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { exportUserCasesToExcel } from '../../utils/excelExport';
+import { exportUserCasesToExcel, exportCasesToEmail } from '../../utils/excelExport';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -22,9 +28,14 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
+  const [exportType, setExportType] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
+  
+  // For export menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
 
   // Check if we're on an auth page (login or signup)
   const isAuthPage = location.pathname === '/' || 
@@ -35,19 +46,52 @@ const Navbar = () => {
     logout();
     navigate('/');
   };
+  
+  // Handle export menu open
+  const handleExportClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  // Handle export menu close
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleExportExcel = async () => {
     try {
       setLoading(true);
+      setExportType('download');
+      handleMenuClose();
       
-      // Use the new export function that handles authenticated requests
+      // Use the export function that handles authenticated requests
       await exportUserCasesToExcel();
       
       setLoading(false);
+      setExportType('');
     } catch (error) {
       console.error('Error exporting cases:', error);
       alert('Failed to export cases. Please try again.');
       setLoading(false);
+      setExportType('');
+    }
+  };
+  
+  const handleEmailExport = async () => {
+    try {
+      setLoading(true);
+      setExportType('email');
+      handleMenuClose();
+      
+      // Use the new email export function
+      await exportCasesToEmail();
+      
+      setLoading(false);
+      setExportType('');
+    } catch (error) {
+      console.error('Error emailing cases:', error);
+      alert('Failed to email cases. Please try again.');
+      setLoading(false);
+      setExportType('');
     }
   };
 
@@ -105,6 +149,84 @@ const Navbar = () => {
       );
     }
     return null;
+  };
+  
+  // Render export options
+  const renderExportOptions = () => {
+    if (isMobile) {
+      return (
+        <>
+          <IconButton
+            color="inherit"
+            onClick={handleExportClick}
+            aria-label="export options"
+            size="large"
+            disabled={loading}
+            sx={{ mr: 2 }}
+          >
+            {loading ? 
+              <CircularProgress size={24} color="inherit" /> : 
+              <TableViewIcon />
+            }
+          </IconButton>
+          
+          <Menu
+            anchorEl={anchorEl}
+            open={openMenu}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleExportExcel} disabled={loading}>
+              <ListItemIcon>
+                <DownloadIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>İndir</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={handleEmailExport} disabled={loading}>
+              <ListItemIcon>
+                <EmailIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>E-posta Gönder</ListItemText>
+            </MenuItem>
+          </Menu>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button
+            color="inherit"
+            onClick={handleExportClick}
+            startIcon={loading ? 
+              <CircularProgress size={20} color="inherit" /> : 
+              <TableViewIcon />
+            }
+            disabled={loading}
+            sx={{ fontWeight: 'medium', mr: 2 }}
+          >
+            EXPORT
+          </Button>
+          
+          <Menu
+            anchorEl={anchorEl}
+            open={openMenu}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleExportExcel} disabled={loading}>
+              <ListItemIcon>
+                <DownloadIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>İndir</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={handleEmailExport} disabled={loading}>
+              <ListItemIcon>
+                <EmailIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>E-posta Gönder</ListItemText>
+            </MenuItem>
+          </Menu>
+        </>
+      );
+    }
   };
 
   return (
@@ -172,29 +294,8 @@ const Navbar = () => {
                 </Button>
               )}
               
-              {/* Export Button */}
-              {isMobile ? (
-                <IconButton
-                  color="inherit"
-                  onClick={handleExportExcel}
-                  aria-label="export to excel"
-                  size="large"
-                  disabled={loading}
-                  sx={{ mr: 2 }}
-                >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : <TableViewIcon />}
-                </IconButton>
-              ) : (
-                <Button
-                  color="inherit"
-                  onClick={handleExportExcel}
-                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <TableViewIcon />}
-                  disabled={loading}
-                  sx={{ fontWeight: 'medium', mr: 2 }}
-                >
-                  EXPORT
-                </Button>
-              )}
+              {/* Export Options */}
+              {renderExportOptions()}
               
               {/* Logout Button */}
               {isMobile ? (

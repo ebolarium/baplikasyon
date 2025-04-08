@@ -114,4 +114,31 @@ export const exportCasesToExcel = async (cases, emailTo = null) => {
   }
 };
 
+/**
+ * Exports cases as Excel file and sends it via email to the logged-in user
+ * @returns {Promise<boolean>} Success status
+ */
+export const exportCasesToEmail = async () => {
+  try {
+    // Call the export-email endpoint to generate and send Excel via email
+    const response = await api.post('/cases/export-email');
+    
+    // Show success message
+    alert('Destek vakaları raporu e-posta adresinize gönderilmiştir. Lütfen e-posta kutunuzu kontrol ediniz.');
+    
+    return true;
+  } catch (error) {
+    console.error('Error exporting cases to email:', error);
+    
+    // Show appropriate error message
+    if (error.response && error.response.status === 404) {
+      alert('E-posta gönderilemedi. Dışa aktarılacak vaka bulunamadı.');
+    } else {
+      alert('E-posta gönderilirken bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+    
+    return false;
+  }
+};
+
 export default exportUserCasesToExcel; 
