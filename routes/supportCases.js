@@ -171,7 +171,7 @@ router.post('/export-email', protect, async (req, res) => {
     
     // Get cases for this user only (based on the user ownership in the model)
     console.log(`Finding cases for user: ${userId}`);
-    const cases = await SupportCase.find().sort({ openedAt: -1 }).lean();
+    const cases = await SupportCase.find({ user: userId }).sort({ openedAt: -1 }).lean();
     
     if (!cases || cases.length === 0) {
       console.log(`No cases found for user: ${userId}`);
@@ -266,11 +266,11 @@ router.post('/export-email', protect, async (req, res) => {
       await emailService.sendEmail({
         to: user.email,
         subject: `Destek Vakaları Raporu - ${dateStr}`,
-        text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nTalep ettiğiniz destek vaka raporu ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
+        text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nTalep ettiğiniz destek vaka raporu ektedir. Bu rapor, sizin destek vakalarınızın bir özetini içerir.\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
         html: `
           <h2>Destek Vakaları Raporu</h2>
           <p>Merhaba ${user.name || 'Değerli Kullanıcı'},</p>
-          <p>Talep ettiğiniz destek vaka raporu ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.</p>
+          <p>Talep ettiğiniz destek vaka raporu ektedir. Bu rapor, sizin destek vakalarınızın bir özetini içerir.</p>
           <p>İyi çalışmalar dileriz,<br>Odak Kimya Destek Ekibi</p>
         `,
         attachments: [
