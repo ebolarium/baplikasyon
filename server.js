@@ -25,19 +25,18 @@ try {
       
       // Initialize email service and cron jobs after database connection
       if (process.env.NODE_ENV === 'production') {
-        const { initTransporter } = require('./utils/emailService');
-        const { initCronJobs } = require('./utils/cronJobs');
-        
-        // Initialize email transporter
+        // Use Gmail service instead of Resend
         try {
-          initTransporter();
-          console.log('Email service initialized');
+          // For backwards compatibility, export the emailService interface
+          global.emailService = require('./utils/gmailService');
+          console.log('Gmail email service initialized');
         } catch (error) {
           console.error('Error initializing email service:', error);
         }
         
         // Initialize cron jobs
         try {
+          const { initCronJobs } = require('./utils/cronJobs');
           initCronJobs();
           console.log('Cron jobs initialized');
         } catch (error) {

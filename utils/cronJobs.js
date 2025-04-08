@@ -2,10 +2,12 @@ const cron = require('node-cron');
 const User = require('../models/User');
 const SupportCase = require('../models/SupportCase');
 const { exportCasesToExcel } = require('../client/src/utils/excelExport');
-const emailService = require('./emailService');
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
+
+// Get email service - use global.emailService if available (Gmail) or fall back to the local import
+const emailService = global.emailService || require('./emailService');
 
 /**
  * Generate weekly report for a user and send via email

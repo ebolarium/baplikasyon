@@ -256,9 +256,9 @@ router.post('/export-email', protect, async (req, res) => {
       return res.status(500).json({ error: 'Error reading generated Excel file' });
     }
     
-    // Get email service
+    // Get email service - use global.emailService if available (Gmail) or fall back to the local import
     console.log('Loading email service');
-    const emailService = require('../utils/emailService');
+    const emailService = global.emailService || require('../utils/emailService');
     
     // Send email with attachment
     console.log(`Sending email to: ${user.email}`);
