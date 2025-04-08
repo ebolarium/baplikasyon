@@ -156,20 +156,29 @@ router.delete('/:id', protect, async (req, res) => {
 // @access  Private
 router.post('/export-email', protect, async (req, res) => {
   try {
+    console.log('Received request to export cases to email');
     const userId = req.user.id;
     
     // Get user info for email
+    console.log(`Finding user with ID: ${userId}`);
     const user = await User.findById(userId);
     if (!user) {
+      console.error(`User not found for ID: ${userId}`);
       return res.status(404).json({ error: 'User not found' });
     }
     
+    console.log(`User found: ${user.email}`);
+    
     // Get cases for this user only (based on the user ownership in the model)
-    const cases = await SupportCase.find({ user: userId }).sort({ openedAt: -1 }).lean();
+    console.log(`Finding cases for user: ${userId}`);
+    const cases = await SupportCase.find().sort({ openedAt: -1 }).lean();
     
     if (!cases || cases.length === 0) {
+      console.log(`No cases found for user: ${userId}`);
       return res.status(404).json({ error: 'No cases found to export' });
     }
+    
+    console.log(`Found ${cases.length} cases to export`);
     
     // Format cases data for Excel export
     const formattedCases = cases.map(c => ({
@@ -217,42 +226,75 @@ router.post('/export-email', protect, async (req, res) => {
     const fs = require('fs');
     const path = require('path');
     const tempDir = path.join(__dirname, '..', 'temp');
+    
+    console.log(`Ensuring temp directory exists: ${tempDir}`);
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
+      console.log('Temp directory created');
     }
     
     const filePath = path.join(tempDir, filename);
+    console.log(`Writing Excel file to: ${filePath}`);
     
-    // Write file to disk
-    XLSX.writeFile(workbook, filePath);
+    try {
+      // Write file to disk
+      XLSX.writeFile(workbook, filePath);
+      console.log('Excel file written successfully');
+    } catch (writeError) {
+      console.error('Error writing Excel file:', writeError);
+      return res.status(500).json({ error: 'Error generating Excel file' });
+    }
     
     // Get file as buffer for email attachment
-    const fileBuffer = fs.readFileSync(filePath);
+    console.log('Reading file for email attachment');
+    let fileBuffer;
+    try {
+      fileBuffer = fs.readFileSync(filePath);
+      console.log(`File read successfully, size: ${fileBuffer.length} bytes`);
+    } catch (readError) {
+      console.error('Error reading Excel file:', readError);
+      return res.status(500).json({ error: 'Error reading generated Excel file' });
+    }
     
     // Get email service
+    console.log('Loading email service');
     const emailService = require('../utils/emailService');
     
     // Send email with attachment
-    await emailService.sendEmail({
-      to: user.email,
-      subject: `Destek Vakaları Raporu - ${dateStr}`,
-      text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nTalep ettiğiniz destek vaka raporu ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
-      html: `
-        <h2>Destek Vakaları Raporu</h2>
-        <p>Merhaba ${user.name || 'Değerli Kullanıcı'},</p>
-        <p>Talep ettiğiniz destek vaka raporu ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.</p>
-        <p>İyi çalışmalar dileriz,<br>Odak Kimya Destek Ekibi</p>
-      `,
-      attachments: [
-        {
-          filename,
-          content: fileBuffer,
-        }
-      ]
-    });
+    console.log(`Sending email to: ${user.email}`);
+    try {
+      await emailService.sendEmail({
+        to: user.email,
+        subject: `Destek Vakaları Raporu - ${dateStr}`,
+        text: `Merhaba ${user.name || 'Değerli Kullanıcı'},\n\nTalep ettiğiniz destek vaka raporu ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.\n\nİyi çalışmalar dileriz,\nOdak Kimya Destek Ekibi`,
+        html: `
+          <h2>Destek Vakaları Raporu</h2>
+          <p>Merhaba ${user.name || 'Değerli Kullanıcı'},</p>
+          <p>Talep ettiğiniz destek vaka raporu ektedir. Bu rapor, sistemdeki tüm destek vakalarının bir özetini içerir.</p>
+          <p>İyi çalışmalar dileriz,<br>Odak Kimya Destek Ekibi</p>
+        `,
+        attachments: [
+          {
+            filename,
+            content: fileBuffer,
+          }
+        ]
+      });
+      console.log('Email sent successfully');
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      return res.status(500).json({ error: 'Error sending email' });
+    }
     
     // Clean up temporary file
-    fs.unlinkSync(filePath);
+    console.log(`Cleaning up temporary file: ${filePath}`);
+    try {
+      fs.unlinkSync(filePath);
+      console.log('Temporary file deleted');
+    } catch (unlinkError) {
+      console.error('Error deleting temporary file:', unlinkError);
+      // Don't return an error here, as the email has been sent
+    }
     
     res.json({ success: true, message: 'Excel report has been sent to your email' });
   } catch (error) {

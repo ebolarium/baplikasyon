@@ -15,6 +15,11 @@ npm --version
 echo "Files in current directory before install:"
 ls -la
 
+# Create temp directory with proper permissions
+echo "Creating temp directory with proper permissions"
+mkdir -p temp
+chmod 777 temp
+
 # Clean npm cache
 echo "Cleaning npm cache"
 npm cache clean --force
