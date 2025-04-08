@@ -23,6 +23,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { AuthContext } from '../../App';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Navbar = () => {
   const theme = useTheme();
@@ -296,6 +297,30 @@ const Navbar = () => {
               
               {/* Export Options */}
               {renderExportOptions()}
+              
+              {/* Settings Button */}
+              {isMobile ? (
+                <IconButton
+                  color="inherit"
+                  component={RouterLink}
+                  to="/settings"
+                  aria-label="settings"
+                  size="large"
+                  sx={{ mr: 2 }}
+                >
+                  <SettingsIcon />
+                </IconButton>
+              ) : (
+                <Button
+                  color="inherit"
+                  component={RouterLink}
+                  to="/settings"
+                  startIcon={<SettingsIcon />}
+                  sx={{ fontWeight: 'medium', mr: 2 }}
+                >
+                  SETTINGS
+                </Button>
+              )}
               
               {/* Logout Button */}
               {isMobile ? (

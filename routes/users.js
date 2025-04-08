@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const { protect } = require('../middleware/auth');
 
 // @desc    Register a user
 // @route   POST /api/users
@@ -62,6 +63,55 @@ router.post('/', async (req, res) => {
       msg: 'Server Error',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
+  }
+});
+
+// @route   GET /api/users/me
+// @desc    Get current user
+// @access  Private
+router.get('/me', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   PUT /api/users/settings
+// @desc    Update user settings
+// @access  Private
+router.put('/settings', protect, async (req, res) => {
+  try {
+    const { receiveWeeklyReports } = req.body;
+    
+    // Find the user
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    // Update only the specified settings
+    if (receiveWeeklyReports !== undefined) {
+      user.receiveWeeklyReports = receiveWeeklyReports;
+    }
+    
+    // Save the updated user
+    await user.save();
+    
+    // Return the updated user object without password
+    const updatedUser = await User.findById(req.user.id).select('-password');
+    
+    // Update the user in localStorage via the response
+    res.json({
+      user: updatedUser,
+      msg: 'Settings updated successfully'
+    });
+  } catch (err) {
+    console.error('Error updating user settings:', err.message);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
