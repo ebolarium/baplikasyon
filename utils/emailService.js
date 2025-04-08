@@ -1,4 +1,4 @@
-const { Resend } = require('resend');
+const SibApiV3Sdk = require('@getbrevo/brevo');
 const fs = require('fs');
 
 // Try to load config but have fallbacks
@@ -17,43 +17,47 @@ try {
   };
 }
 
-// Initialize resend client
-let resend = null;
+// Initialize Brevo client
+let brevoClient = null;
 let initialized = false;
 
 /**
- * Initialize Resend with API key
+ * Initialize Brevo with API key
  */
 const initTransporter = () => {
   // Only initialize once
   if (initialized) return;
   
-  // Get API key from environment variables or config
-  const apiKey = process.env.RESEND_API_KEY || 
-    (config ? config.get('mailSettings.resendApiKey') : undefined);
+  // Get API key from environment variables
+  const apiKey = process.env.BREVO_API_KEY;
   
-  console.log(`API Key available: ${apiKey ? 'Yes (length: ' + apiKey.length + ')' : 'No'}`);
-  console.log(`RESEND_API_KEY env variable: ${process.env.RESEND_API_KEY ? 'Set' : 'Not set'}`);
+  console.log(`Brevo API Key available: ${apiKey ? 'Yes (length: ' + apiKey.length + ')' : 'No'}`);
+  console.log(`BREVO_API_KEY env variable: ${process.env.BREVO_API_KEY ? 'Set' : 'Not set'}`);
   
   if (!apiKey) {
-    console.error('Resend API key not provided. Email service will not function.');
+    console.error('Brevo API key not provided. Email service will not function.');
     return;
   }
   
-  // Initialize Resend client
+  // Initialize Brevo client
   try {
-    resend = new Resend(apiKey);
-    console.log('Resend email service initialized successfully');
+    // Configure API key authorization
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    const apiKey1 = apiInstance.authentications['apiKey'];
+    apiKey1.apiKey = apiKey;
+    
+    brevoClient = apiInstance;
+    console.log('Brevo email service initialized successfully');
     initialized = true;
   } catch (error) {
-    console.error('Error initializing Resend client:', error);
+    console.error('Error initializing Brevo client:', error);
   }
 };
 
 /**
  * Send an email with optional attachment
  * @param {Object} options - Email options
- * @param {string} options.to - Recipient email address (will be ignored; emails always go to test address)
+ * @param {string} options.to - Recipient email address
  * @param {string} options.subject - Email subject
  * @param {string} options.text - Plain text body
  * @param {string} options.html - HTML body (optional)
@@ -68,84 +72,90 @@ const sendEmail = async (options) => {
       initTransporter();
     }
     
-    if (!initialized || !resend) {
+    if (!initialized || !brevoClient) {
       console.error('Email service initialization failed. Cannot send email.');
       throw new Error('Email service not initialized. Cannot send email.');
     }
     
-    // Force recipient to be the test email address
-    const testEmail = 'barisboga@gmail.com';
-    
     // Log email attempt
-    console.log(`Original recipient: ${options.to} (redirecting to test account: ${testEmail})`);
+    console.log(`Attempting to send email to: ${options.to}`);
     console.log(`Subject: ${options.subject}`);
     console.log(`Has attachments: ${options.attachments && options.attachments.length > 0 ? 'Yes' : 'No'}`);
     
-    // Add note about the intended recipient to the email subject
-    const enhancedSubject = `${options.subject} [Intended for: ${options.to}]`;
+    // Set default sender
+    const from = {
+      email: 'noreply@teknodak.com',
+      name: 'Odak Kimya Destek'
+    };
     
-    // Set default sender - using the default Resend test address
-    const from = 'onboarding@resend.dev';
+    console.log(`Sending from: ${from.email} (${from.name})`);
     
-    console.log(`Sending from: ${from}`);
-    
-    // Format attachments for Resend
-    const attachments = options.attachments ? options.attachments.map(attachment => {
-      let content;
-      
-      // If we have a path, read the file
-      if (attachment.path) {
-        try {
-          content = fs.readFileSync(attachment.path);
-          console.log(`Read attachment from path: ${attachment.path}, size: ${content.length} bytes`);
-        } catch (error) {
-          console.error(`Error reading attachment from path: ${attachment.path}`, error);
-          throw error;
-        }
-      } else if (attachment.content) {
-        // If it's base64 content, convert it to Buffer
-        try {
-          content = Buffer.from(attachment.content, 'base64');
-          console.log(`Converted base64 attachment to buffer, size: ${content.length} bytes`);
-        } catch (error) {
-          console.error('Error converting attachment content to Buffer', error);
-          throw error;
+    // Format attachments for Brevo
+    const attachments = [];
+    if (options.attachments && options.attachments.length > 0) {
+      for (const attachment of options.attachments) {
+        let content;
+        
+        // If we have a path, read the file
+        if (attachment.path) {
+          try {
+            content = fs.readFileSync(attachment.path);
+            console.log(`Read attachment from path: ${attachment.path}, size: ${content.length} bytes`);
+            
+            // Convert to base64 for Brevo
+            const base64Content = content.toString('base64');
+            
+            attachments.push(new SibApiV3Sdk.SendSmtpEmailAttachment(
+              attachment.filename,
+              base64Content
+            ));
+          } catch (error) {
+            console.error(`Error reading attachment from path: ${attachment.path}`, error);
+            throw error;
+          }
+        } else if (attachment.content) {
+          // Already have content as Buffer, convert to base64 for Brevo
+          try {
+            // If content is already a string (base64), use it directly
+            const base64Content = Buffer.isBuffer(attachment.content) 
+              ? attachment.content.toString('base64')
+              : attachment.content;
+            
+            console.log(`Prepared attachment from buffer, filename: ${attachment.filename}`);
+            
+            attachments.push(new SibApiV3Sdk.SendSmtpEmailAttachment(
+              attachment.filename,
+              base64Content
+            ));
+          } catch (error) {
+            console.error('Error preparing attachment content', error);
+            throw error;
+          }
         }
       }
-      
-      return {
-        filename: attachment.filename,
-        content: content
-      };
-    }) : [];
+    }
     
-    // Prepend intended recipient information to the content
-    const enhancedText = `INTENDED RECIPIENT: ${options.to}\n\n${options.text}`;
-    const enhancedHtml = options.html ? 
-      `<div style="background-color:#f8f9fa;padding:10px;margin-bottom:15px;border-left:4px solid #007bff;">
-         <strong>INTENDED RECIPIENT:</strong> ${options.to}
-       </div>
-       ${options.html}` : 
-      undefined;
+    // Prepare email data for Brevo
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     
-    // Send email with Resend
-    console.log(`Calling Resend API to send to test address: ${testEmail}...`);
-    const result = await resend.emails.send({
-      from: from,
-      to: testEmail,  // Always send to the test email
-      subject: enhancedSubject,
-      text: enhancedText,
-      html: enhancedHtml,
-      attachments: attachments.length > 0 ? attachments : undefined
-    });
+    sendSmtpEmail.sender = from;
+    sendSmtpEmail.to = [{ email: options.to }];
+    sendSmtpEmail.subject = options.subject;
+    sendSmtpEmail.textContent = options.text;
+    sendSmtpEmail.htmlContent = options.html || options.text;
     
-    console.log(`Email sent to test address: ${testEmail}`, result);
+    if (attachments.length > 0) {
+      sendSmtpEmail.attachment = attachments;
+    }
+    
+    // Send email with Brevo
+    console.log(`Calling Brevo API...`);
+    const result = await brevoClient.sendTransacEmail(sendSmtpEmail);
+    
+    console.log(`Email sent successfully to ${options.to}`, result);
     return result;
   } catch (error) {
     console.error('Error sending email:', error);
-    if (error.response) {
-      console.error('Resend API error response:', error.response);
-    }
     throw error;
   }
 };

@@ -25,12 +25,12 @@ try {
       
       // Initialize email service and cron jobs after database connection
       if (process.env.NODE_ENV === 'production') {
-        // Use Resend service with authorized recipients
+        // Use Brevo service for email delivery
         try {
           // Initialize email transporter
           const { initTransporter } = require('./utils/emailService');
           initTransporter();
-          console.log('Resend email service initialized for authorized recipients');
+          console.log('Brevo email service initialized');
         } catch (error) {
           console.error('Error initializing email service:', error);
         }
