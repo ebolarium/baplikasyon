@@ -74,6 +74,9 @@ const generateAndSendWeeklyReport = async (user) => {
     // Write file to disk
     XLSX.writeFile(workbook, filePath);
     
+    // Get file content as base64 for SendGrid
+    const fileContent = fs.readFileSync(filePath).toString('base64');
+    
     // Send email with attachment
     await emailService.sendEmail({
       to: user.email,
@@ -88,7 +91,8 @@ const generateAndSendWeeklyReport = async (user) => {
       attachments: [
         {
           filename,
-          path: filePath
+          content: fileContent,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         }
       ]
     });

@@ -1,38 +1,29 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const config = require('config');
 
-// Initialize mail transporter
-let transporter = null;
+// Initialize flag
+let initialized = false;
 
 /**
- * Initialize the email transporter with configuration
+ * Initialize SendGrid with API key
  */
 const initTransporter = () => {
   // Only initialize once
-  if (transporter) return;
+  if (initialized) return;
   
-  // Get mail settings from config or environment variables
-  const mailSettings = {
-    host: process.env.MAIL_HOST || config.get('mailSettings.host'),
-    port: process.env.MAIL_PORT || config.get('mailSettings.port'),
-    secure: process.env.MAIL_SECURE === 'true' || config.get('mailSettings.secure'),
-    auth: {
-      user: process.env.MAIL_USER || config.get('mailSettings.auth.user'),
-      pass: process.env.MAIL_PASSWORD || config.get('mailSettings.auth.pass')
-    }
-  };
+  // Get API key from environment variables or config
+  const apiKey = process.env.SENDGRID_API_KEY || config.get('mailSettings.sendgridApiKey');
   
-  // Create transporter with mail settings
-  transporter = nodemailer.createTransport(mailSettings);
+  if (!apiKey) {
+    console.error('SendGrid API key not provided. Email service will not function.');
+    return;
+  }
   
-  // Verify connection
-  transporter.verify((error) => {
-    if (error) {
-      console.error('Email service error:', error);
-    } else {
-      console.log('Email service is ready to send messages');
-    }
-  });
+  // Set API key
+  sgMail.setApiKey(apiKey);
+  
+  console.log('SendGrid email service initialized');
+  initialized = true;
 };
 
 /**
@@ -47,28 +38,56 @@ const initTransporter = () => {
  */
 const sendEmail = async (options) => {
   try {
-    // Initialize transporter if not already initialized
-    if (!transporter) {
+    // Initialize if not already initialized
+    if (!initialized) {
       initTransporter();
+    }
+    
+    if (!initialized) {
+      throw new Error('Email service not initialized. Cannot send email.');
     }
     
     // Set default sender
     const from = process.env.MAIL_FROM || config.get('mailSettings.from') || 'noreply@odakkimya.com.tr';
     
-    // Send email
-    const info = await transporter.sendMail({
-      from,
+    // Format attachments for SendGrid
+    const attachments = options.attachments ? options.attachments.map(attachment => {
+      // Convert file content to base64 if we have a path
+      let content = attachment.content;
+      
+      if (attachment.path) {
+        const fs = require('fs');
+        content = fs.readFileSync(attachment.path).toString('base64');
+      }
+      
+      return {
+        content: content,
+        filename: attachment.filename,
+        type: attachment.contentType || 'application/octet-stream',
+        disposition: 'attachment'
+      };
+    }) : [];
+    
+    // Prepare email
+    const msg = {
       to: options.to,
+      from: from,
       subject: options.subject,
       text: options.text,
-      html: options.html,
-      attachments: options.attachments
-    });
+      html: options.html || options.text,
+      attachments: attachments
+    };
     
-    console.log('Email sent:', info.messageId);
-    return info;
+    // Send email
+    const result = await sgMail.send(msg);
+    
+    console.log(`Email sent to ${options.to}`);
+    return result;
   } catch (error) {
     console.error('Error sending email:', error);
+    if (error.response) {
+      console.error(error.response.body);
+    }
     throw error;
   }
 };
