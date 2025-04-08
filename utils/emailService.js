@@ -105,10 +105,10 @@ const sendEmail = async (options) => {
             // Convert to base64 for Brevo
             const base64Content = content.toString('base64');
             
-            attachments.push(new SibApiV3Sdk.SendSmtpEmailAttachment(
-              attachment.filename,
-              base64Content
-            ));
+            attachments.push({
+              name: attachment.filename,
+              content: base64Content
+            });
           } catch (error) {
             console.error(`Error reading attachment from path: ${attachment.path}`, error);
             throw error;
@@ -123,10 +123,10 @@ const sendEmail = async (options) => {
             
             console.log(`Prepared attachment from buffer, filename: ${attachment.filename}`);
             
-            attachments.push(new SibApiV3Sdk.SendSmtpEmailAttachment(
-              attachment.filename,
-              base64Content
-            ));
+            attachments.push({
+              name: attachment.filename,
+              content: base64Content
+            });
           } catch (error) {
             console.error('Error preparing attachment content', error);
             throw error;
