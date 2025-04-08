@@ -164,8 +164,8 @@ router.post('/export-email', protect, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     
-    // Get all cases for this user
-    const cases = await SupportCase.find().sort({ openedAt: -1 }).lean();
+    // Get cases for this user only (based on the user ownership in the model)
+    const cases = await SupportCase.find({ user: userId }).sort({ openedAt: -1 }).lean();
     
     if (!cases || cases.length === 0) {
       return res.status(404).json({ error: 'No cases found to export' });

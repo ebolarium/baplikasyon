@@ -1,6 +1,21 @@
 const { Resend } = require('resend');
-const config = require('config');
 const fs = require('fs');
+
+// Try to load config but have fallbacks
+let config;
+try {
+  config = require('config');
+} catch (error) {
+  console.warn('Config module not found, using environment variables only');
+  config = {
+    get: (path) => {
+      // Simple fallback implementation
+      if (path === 'mailSettings.from') return process.env.MAIL_FROM;
+      if (path === 'mailSettings.resendApiKey') return process.env.RESEND_API_KEY;
+      return undefined;
+    }
+  };
+}
 
 // Initialize resend client
 let resend = null;
@@ -14,7 +29,8 @@ const initTransporter = () => {
   if (initialized) return;
   
   // Get API key from environment variables or config
-  const apiKey = process.env.RESEND_API_KEY || config.get('mailSettings.resendApiKey');
+  const apiKey = process.env.RESEND_API_KEY || 
+    (config ? config.get('mailSettings.resendApiKey') : undefined);
   
   if (!apiKey) {
     console.error('Resend API key not provided. Email service will not function.');
@@ -50,7 +66,9 @@ const sendEmail = async (options) => {
     }
     
     // Set default sender
-    const from = process.env.MAIL_FROM || config.get('mailSettings.from') || 'onboarding@resend.dev';
+    const from = process.env.MAIL_FROM || 
+      (config ? config.get('mailSettings.from') : undefined) || 
+      'onboarding@resend.dev';
     
     // Format attachments for Resend
     const attachments = options.attachments ? options.attachments.map(attachment => {
