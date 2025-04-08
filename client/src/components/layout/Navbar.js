@@ -23,7 +23,6 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { AuthContext } from '../../App';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 const Navbar = () => {
   const theme = useTheme();
@@ -263,8 +262,17 @@ const Navbar = () => {
           
           {user && (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {/* Name */}
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {/* Name with link to profile */}
+              <Box 
+                component={RouterLink} 
+                to="/profile"
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  color: 'inherit'
+                }}
+              >
                 <AccountCircleIcon fontSize="small" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
                 <Typography variant="body2" sx={{ mr: 2 }}>
                   {user.name || user.email}
@@ -297,30 +305,6 @@ const Navbar = () => {
               
               {/* Export Options */}
               {renderExportOptions()}
-              
-              {/* Settings Button */}
-              {isMobile ? (
-                <IconButton
-                  color="inherit"
-                  component={RouterLink}
-                  to="/settings"
-                  aria-label="settings"
-                  size="large"
-                  sx={{ mr: 2 }}
-                >
-                  <SettingsIcon />
-                </IconButton>
-              ) : (
-                <Button
-                  color="inherit"
-                  component={RouterLink}
-                  to="/settings"
-                  startIcon={<SettingsIcon />}
-                  sx={{ fontWeight: 'medium', mr: 2 }}
-                >
-                  SETTINGS
-                </Button>
-              )}
               
               {/* Logout Button */}
               {isMobile ? (

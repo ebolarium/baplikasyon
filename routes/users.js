@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { check, validationResult } = require('express-validator');
 const { protect } = require('../middleware/auth');
 
 // @desc    Register a user
@@ -66,52 +69,53 @@ router.post('/', async (req, res) => {
   }
 });
 
-// @route   GET /api/users/me
-// @desc    Get current user
+// @route   GET /api/users/profile
+// @desc    Get current user profile
 // @access  Private
-router.get('/me', protect, async (req, res) => {
+router.get('/profile', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-// @route   PUT /api/users/settings
-// @desc    Update user settings
-// @access  Private
-router.put('/settings', protect, async (req, res) => {
-  try {
-    const { receiveWeeklyReports } = req.body;
-    
-    // Find the user
-    const user = await User.findById(req.user.id);
     
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
     
-    // Update only the specified settings
-    if (receiveWeeklyReports !== undefined) {
-      user.receiveWeeklyReports = receiveWeeklyReports;
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// @route   PUT /api/users/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', protect, async (req, res) => {
+  const { receiveWeeklyReports } = req.body;
+  
+  // Build user object
+  const userFields = {};
+  if (receiveWeeklyReports !== undefined) {
+    userFields.receiveWeeklyReports = receiveWeeklyReports;
+  }
+  
+  try {
+    let user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
     }
     
-    // Save the updated user
-    await user.save();
+    user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: userFields },
+      { new: true }
+    ).select('-password');
     
-    // Return the updated user object without password
-    const updatedUser = await User.findById(req.user.id).select('-password');
-    
-    // Update the user in localStorage via the response
-    res.json({
-      user: updatedUser,
-      msg: 'Settings updated successfully'
-    });
+    res.json(user);
   } catch (err) {
-    console.error('Error updating user settings:', err.message);
-    res.status(500).json({ msg: 'Server Error' });
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 });
 

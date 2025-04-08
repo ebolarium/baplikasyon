@@ -10,11 +10,11 @@ import Dashboard from './components/pages/Dashboard';
 import CaseForm from './components/cases/CaseForm';
 import CaseDetail from './components/cases/CaseDetail';
 import Reports from './components/pages/Reports';
-import UserSettings from './components/pages/UserSettings';
 import NotFound from './components/pages/NotFound';
 import Signup from './components/pages/Signup';
 import Login from './components/pages/Login';
 import PrivateRoute from './components/routing/PrivateRoute';
+import Profile from './components/pages/Profile';
 
 // Utils
 import { getCurrentUser } from './utils/auth';
@@ -122,6 +122,14 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/profile" 
+                  element={
+                    <PrivateRoute>
+                      <Profile />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
                   path="/case/new" 
                   element={
                     <PrivateRoute>
@@ -150,14 +158,6 @@ function App() {
                   element={
                     <PrivateRoute>
                       <Reports />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/settings" 
-                  element={
-                    <PrivateRoute>
-                      <UserSettings />
                     </PrivateRoute>
                   } 
                 />

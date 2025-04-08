@@ -1,17 +1,9 @@
-import { useContext } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { AuthContext } from '../../App';
 
-// Component for protecting routes that require authentication
+// Always allow access to private routes
 const PrivateRoute = ({ children }) => {
-  const { user, isAuthenticated } = useContext(AuthContext);
-  
-  // If not authenticated, redirect to login page
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-  
-  // If authenticated, render the protected component
+  // Always render children, no authentication check needed
   return children;
 };
 
