@@ -82,7 +82,7 @@ const sendEmail = async (options) => {
     // Set default sender
     const from = {
       name: 'Odak Kimya Destek',
-      address: '89e1fd001@smtp-brevo.com'
+      address: 'noreply@teknodak.com'
     };
     
     console.log(`Sending from: ${from.address} (${from.name})`);
