@@ -21,7 +21,7 @@ const initTransporter = async () => {
       port: 587,
       secure: false,
       auth: {
-        user: '89e1fd001',
+        user: '89e1fd001@smtp-brevo.com',
         pass: 'T6G2tOzdHbCmfS5V'
       },
       tls: {
