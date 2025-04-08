@@ -1,6 +1,44 @@
 import * as XLSX from 'xlsx';
-import { getUserEmail } from './auth';
 import api from './api';
+
+/**
+ * Get the user's email or return a default if not available
+ * @returns {string} User email or default
+ */
+const getUserEmail = () => {
+  // Try to get user from localStorage
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user && user.email) {
+        return user.email;
+      }
+    } catch (e) {
+      console.error('Error parsing user from localStorage:', e);
+    }
+  }
+  
+  // Try to get token from localStorage
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      // Simple parsing of JWT payload (middle part)
+      const tokenParts = token.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        if (payload && payload.email) {
+          return payload.email;
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing token:', e);
+    }
+  }
+  
+  // Fallback to default email
+  return 'baris@odakkimya.com.tr';
+};
 
 /**
  * Fetches user's cases and generates an Excel file
