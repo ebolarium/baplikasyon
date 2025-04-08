@@ -8,26 +8,46 @@ let initialized = false;
 /**
  * Initialize SMTP transporter with Brevo credentials
  */
-const initTransporter = () => {
+const initTransporter = async () => {
   // Only initialize once
   if (initialized) return;
   
   try {
+    console.log('Setting up SMTP transporter...');
+    
     // Create transporter with SMTP credentials
     transporter = nodemailer.createTransport({
       host: 'smtp-relay.brevo.com',
       port: 587,
-      secure: false, // use TLS
+      secure: false,
       auth: {
         user: '89e1fd001@smtp-brevo.com',
         pass: 'T6G2tOzdHbCmfS5V'
-      }
+      },
+      tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false
+      },
+      debug: true,
+      logger: true
     });
+    
+    // Verify connection configuration
+    console.log('Verifying SMTP connection...');
+    try {
+      await transporter.verify();
+      console.log('SMTP connection verified successfully!');
+    } catch (verifyError) {
+      console.error('SMTP connection verification failed:', verifyError);
+      throw verifyError;
+    }
     
     console.log('SMTP transporter initialized successfully');
     initialized = true;
   } catch (error) {
     console.error('Error initializing SMTP transporter:', error);
+    initialized = false;
+    transporter = null;
   }
 };
 
@@ -46,7 +66,7 @@ const sendEmail = async (options) => {
     // Initialize if not already initialized
     if (!initialized) {
       console.log('Email service not initialized, attempting to initialize now...');
-      initTransporter();
+      await initTransporter();
     }
     
     if (!initialized || !transporter) {
@@ -62,7 +82,7 @@ const sendEmail = async (options) => {
     // Set default sender
     const from = {
       name: 'Odak Kimya Destek',
-      address: 'noreply@teknodak.com'
+      address: '89e1fd001@smtp-brevo.com' // Use the SMTP login address as the sender
     };
     
     console.log(`Sending from: ${from.address} (${from.name})`);
@@ -104,7 +124,7 @@ const sendEmail = async (options) => {
     }
     
     // Send email with nodemailer
-    console.log('Sending email via SMTP...');
+    console.log('Sending email via SMTP...', mailOptions);
     const info = await transporter.sendMail(mailOptions);
     
     console.log(`Email sent successfully to ${options.to}`, info);

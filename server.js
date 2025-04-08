@@ -26,23 +26,25 @@ try {
       // Initialize email service and cron jobs after database connection
       if (process.env.NODE_ENV === 'production') {
         // Use SMTP service for email delivery
-        try {
-          // Initialize email transporter
-          const { initTransporter } = require('./utils/emailService');
-          initTransporter();
-          console.log('SMTP email service initialized');
-        } catch (error) {
-          console.error('Error initializing email service:', error);
-        }
-        
-        // Initialize cron jobs
-        try {
-          const { initCronJobs } = require('./utils/cronJobs');
-          initCronJobs();
-          console.log('Cron jobs initialized');
-        } catch (error) {
-          console.error('Error initializing cron jobs:', error);
-        }
+        (async () => {
+          try {
+            // Initialize email transporter
+            const { initTransporter } = require('./utils/emailService');
+            await initTransporter();
+            console.log('SMTP email service initialized');
+            
+            // Initialize cron jobs after email is set up
+            try {
+              const { initCronJobs } = require('./utils/cronJobs');
+              initCronJobs();
+              console.log('Cron jobs initialized');
+            } catch (error) {
+              console.error('Error initializing cron jobs:', error);
+            }
+          } catch (error) {
+            console.error('Error initializing email service:', error);
+          }
+        })();
       }
     })
     .catch(err => {
