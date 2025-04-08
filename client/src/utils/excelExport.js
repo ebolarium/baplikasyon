@@ -1,11 +1,41 @@
 import * as XLSX from 'xlsx';
+import { getUserEmail } from './auth';
+import api from './api';
 
 /**
- * Generates an Excel file from cases data and opens email client with attachment
- * @param {Array} cases - Array of case objects to export
- * @param {string} emailTo - Email address to send the export to
+ * Fetches user's cases and generates an Excel file
+ * @param {string} emailTo - Email address to send the export to (defaults to logged-in user's email)
  */
-export const exportCasesToExcel = async (cases, emailTo = 'baris@odakkimya.com.tr') => {
+export const exportUserCasesToExcel = async (emailTo = null) => {
+  try {
+    // Get the logged-in user's email or use provided email
+    const userEmail = emailTo || getUserEmail();
+    
+    // Fetch user's cases
+    const response = await api.get('/cases');
+    const cases = response.data;
+    
+    // Return early if no cases found
+    if (!cases || cases.length === 0) {
+      alert('No cases found to export.');
+      return false;
+    }
+    
+    // Format and export the cases
+    return exportCasesToExcel(cases, userEmail);
+  } catch (error) {
+    console.error('Error fetching cases for export:', error);
+    alert('Failed to fetch cases for export. Please try again.');
+    return false;
+  }
+};
+
+/**
+ * Generates an Excel file from cases data and downloads it with a Turkish message
+ * @param {Array} cases - Array of case objects to export
+ * @param {string} emailTo - Email address parameter kept for backward compatibility but not used
+ */
+export const exportCasesToExcel = async (cases, emailTo = null) => {
   try {
     // Prepare data for Excel
     const workbook = XLSX.utils.book_new();
@@ -58,62 +88,17 @@ export const exportCasesToExcel = async (cases, emailTo = 'baris@odakkimya.com.t
     // Check if on mobile device
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
+    // Create download link
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = filename;
+    downloadLink.click();
+    
+    // Fun Turkish messages based on device type
     if (isMobile) {
-      // On mobile, directly open mail app with attachment
-      // Note: This has limitations based on browser and device,
-      // but works on many mobile browsers
-      
-      // Create mail link with attachment
-      // Since direct file attachment isn't fully supported across all devices,
-      // we'll use a fallback approach:
-      
-      // First, try to use the Web Share API if available (modern approach)
-      if (navigator.share && navigator.canShare) {
-        try {
-          const file = new File([blob], filename, {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-          });
-          
-          await navigator.share({
-            files: [file],
-            title: 'Support Cases Export',
-            text: 'Please find attached the export of support cases.'
-          });
-          
-          return true;
-        } catch (error) {
-          console.error('Error sharing file:', error);
-          // Fall back to other methods
-        }
-      }
-      
-      // Fallback: Attempt to use mailto with a download link
-      // (this won't include the attachment directly but provides a link)
-      const mailtoLink = `mailto:${emailTo}?subject=Support Cases Export&body=Please download the support cases export from the following link:%0D%0A${window.location.origin}/exports/${filename}`;
-      
-      window.location.href = mailtoLink;
-      
-      // Also provide a direct download link for the user
-      const downloadLink = document.createElement('a');
-      downloadLink.href = url;
-      downloadLink.download = filename;
-      downloadLink.click();
-      
-      alert('To email this file, please attach the downloaded Excel file manually to your email.');
+      alert('Dosyanız indiriliyor! Hayırlı olsun, güle güle kullanın! 📱📊');
     } else {
-      // On desktop, download the file and provide instructions
-      const downloadLink = document.createElement('a');
-      downloadLink.href = url;
-      downloadLink.download = filename;
-      downloadLink.click();
-      
-      // Create a mailto link to open default email client
-      const mailtoLink = `mailto:${emailTo}?subject=Support Cases Export&body=Please find attached the support cases export.`;
-      
-      // Open email client
-      window.location.href = mailtoLink;
-      
-      alert('Please attach the downloaded Excel file to the email that opens.');
+      alert('Excel dosyanız hazır! Bol şanslar ve iyi çalışmalar! 🎉📊');
     }
     
     // Clean up the URL object
@@ -124,9 +109,9 @@ export const exportCasesToExcel = async (cases, emailTo = 'baris@odakkimya.com.t
     return true;
   } catch (error) {
     console.error('Error exporting to Excel:', error);
-    alert('Failed to generate Excel export. Please try again.');
+    alert('Dosya oluşturulamadı! Bir hata oluştu, tekrar deneyin. 😔');
     return false;
   }
 };
 
-export default exportCasesToExcel; 
+export default exportUserCasesToExcel; 
