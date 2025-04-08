@@ -34,6 +34,8 @@ const Profile = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
+      
+      // The authorization header is automatically added by setAuthToken
       const res = await axios.get('/api/users/profile');
       
       // Update local state but keep the existing user in context
@@ -59,6 +61,7 @@ const Profile = () => {
       setError('');
       setSuccess(false);
 
+      // The authorization header is automatically added by setAuthToken
       const res = await axios.put('/api/users/profile', {
         receiveWeeklyReports: newValue
       });

@@ -17,7 +17,7 @@ import PrivateRoute from './components/routing/PrivateRoute';
 import Profile from './components/pages/Profile';
 
 // Utils
-import { getCurrentUser } from './utils/auth';
+import { getCurrentUser, initializeAuth } from './utils/auth';
 
 // Create Auth Context
 export const AuthContext = createContext();
@@ -76,6 +76,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize auth token for axios
+    initializeAuth();
+    
     // Check if user is logged in on app load
     const currentUser = getCurrentUser();
     setUser(currentUser);

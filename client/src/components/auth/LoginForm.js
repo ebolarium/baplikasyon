@@ -16,7 +16,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { getCurrentUser } from '../../utils/auth';
+import { getCurrentUser, loginUser } from '../../utils/auth';
 import { AuthContext } from '../../App';
 
 const LoginForm = () => {
@@ -55,23 +55,21 @@ const LoginForm = () => {
     setError('');
     
     try {
-      const res = await axios.post('/api/auth', formData);
+      const response = await axios.post('/api/auth', formData);
       
-      // Store token in localStorage
-      localStorage.setItem('token', res.data.token);
+      // Use the loginUser utility
+      const user = loginUser(response.data.token, response.data.user);
       
-      // Store user data if available
-      if (res.data.user) {
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        setUser(res.data.user);
-      }
+      // Update auth context
+      setUser(user);
       
-      setLoading(false);
-      navigate('/dashboard'); // Redirect to dashboard after successful login
+      // Redirect to dashboard
+      navigate('/dashboard');
     } catch (err) {
       setError(
-        err.response?.data?.msg || 
-        'Invalid credentials. Please try again.'
+        err.response && err.response.data.message
+          ? err.response.data.message
+          : 'Login failed, please check your credentials'
       );
       setLoading(false);
     }
