@@ -1,28 +1,30 @@
-const sgMail = require('@sendgrid/mail');
+const { Resend } = require('resend');
 const config = require('config');
+const fs = require('fs');
 
-// Initialize flag
+// Initialize resend client
+let resend = null;
 let initialized = false;
 
 /**
- * Initialize SendGrid with API key
+ * Initialize Resend with API key
  */
 const initTransporter = () => {
   // Only initialize once
   if (initialized) return;
   
   // Get API key from environment variables or config
-  const apiKey = process.env.SENDGRID_API_KEY || config.get('mailSettings.sendgridApiKey');
+  const apiKey = process.env.RESEND_API_KEY || config.get('mailSettings.resendApiKey');
   
   if (!apiKey) {
-    console.error('SendGrid API key not provided. Email service will not function.');
+    console.error('Resend API key not provided. Email service will not function.');
     return;
   }
   
-  // Set API key
-  sgMail.setApiKey(apiKey);
+  // Initialize Resend client
+  resend = new Resend(apiKey);
   
-  console.log('SendGrid email service initialized');
+  console.log('Resend email service initialized');
   initialized = true;
 };
 
@@ -43,51 +45,45 @@ const sendEmail = async (options) => {
       initTransporter();
     }
     
-    if (!initialized) {
+    if (!initialized || !resend) {
       throw new Error('Email service not initialized. Cannot send email.');
     }
     
     // Set default sender
-    const from = process.env.MAIL_FROM || config.get('mailSettings.from') || 'noreply@odakkimya.com.tr';
+    const from = process.env.MAIL_FROM || config.get('mailSettings.from') || 'onboarding@resend.dev';
     
-    // Format attachments for SendGrid
+    // Format attachments for Resend
     const attachments = options.attachments ? options.attachments.map(attachment => {
-      // Convert file content to base64 if we have a path
-      let content = attachment.content;
+      let content;
       
+      // If we have a path, read the file
       if (attachment.path) {
-        const fs = require('fs');
-        content = fs.readFileSync(attachment.path).toString('base64');
+        content = fs.readFileSync(attachment.path);
+      } else if (attachment.content) {
+        // If it's base64 content, convert it to Buffer
+        content = Buffer.from(attachment.content, 'base64');
       }
       
       return {
-        content: content,
         filename: attachment.filename,
-        type: attachment.contentType || 'application/octet-stream',
-        disposition: 'attachment'
+        content: content
       };
     }) : [];
     
-    // Prepare email
-    const msg = {
-      to: options.to,
+    // Send email with Resend
+    const result = await resend.emails.send({
       from: from,
+      to: options.to,
       subject: options.subject,
       text: options.text,
-      html: options.html || options.text,
-      attachments: attachments
-    };
-    
-    // Send email
-    const result = await sgMail.send(msg);
+      html: options.html || undefined,
+      attachments: attachments.length > 0 ? attachments : undefined
+    });
     
     console.log(`Email sent to ${options.to}`);
     return result;
   } catch (error) {
     console.error('Error sending email:', error);
-    if (error.response) {
-      console.error(error.response.body);
-    }
     throw error;
   }
 };
