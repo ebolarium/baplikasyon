@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -11,85 +11,72 @@ import TableViewIcon from '@mui/icons-material/TableView';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import axios from 'axios';
-import { exportCasesToExcel } from '../../utils/excelExport';
+import { exportUserCasesToExcel } from '../../utils/excelExport';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { AuthContext } from '../../App';
 
 const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useContext(AuthContext);
+
+  // Check if we're on an auth page (login or signup)
+  const isAuthPage = location.pathname === '/' || 
+                     location.pathname === '/login' || 
+                     location.pathname === '/signup';
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const handleExportExcel = async () => {
     try {
       setLoading(true);
-      // Fetch all cases
-      const response = await axios.get('/api/cases');
       
-      // Export to Excel and open email
-      await exportCasesToExcel(response.data);
+      // Use the new export function that handles authenticated requests
+      await exportUserCasesToExcel();
       
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching cases for export:', error);
+      console.error('Error exporting cases:', error);
       alert('Failed to export cases. Please try again.');
       setLoading(false);
     }
   };
 
-  return (
-    <AppBar position="fixed" sx={{ boxShadow: 2, zIndex: theme.zIndex.drawer + 1 }}>
-      <Toolbar>
-        <Box 
-          component={RouterLink} 
-          to="/" 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            textDecoration: 'none',
-            color: 'inherit',
-            flexGrow: 1
-          }}
-        >
-          <Typography
-            variant="subtitle1"
-            component="span"
-            sx={{
-              fontWeight: 'medium',
-              display: 'flex',
-              alignItems: 'center',
-              fontSize: '0.95rem'
-            }}
-          >
-            Baplikasyon
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 0, alignItems: 'center' }}>
+  // Render auth buttons (login/signup or non-authed menu)
+  const renderAuthButtons = () => {
+    if (!user) {
+      return (
+        <>
           {isMobile ? (
             <>
               <IconButton
                 color="inherit"
                 component={RouterLink}
-                to="/reports"
-                aria-label="reports"
+                to="/login"
+                aria-label="login"
                 size="large"
                 sx={{ mr: 0.5 }}
               >
-                <AssessmentIcon />
+                <LoginIcon />
               </IconButton>
-              <Box sx={{ 
-                borderLeft: '1px solid rgba(255, 255, 255, 0.5)', 
-                height: 24, 
-                mx: 0.5 
-              }} />
               <IconButton
                 color="inherit"
-                onClick={handleExportExcel}
-                aria-label="export to excel"
+                component={RouterLink}
+                to="/signup"
+                aria-label="sign up"
                 size="large"
-                disabled={loading}
-                sx={{ ml: 0.5 }}
+                sx={{ mr: 0.5 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : <TableViewIcon />}
+                <PersonAddIcon />
               </IconButton>
             </>
           ) : (
@@ -97,31 +84,143 @@ const Navbar = () => {
               <Button
                 color="inherit"
                 component={RouterLink}
-                to="/reports"
-                startIcon={<AssessmentIcon />}
+                to="/login"
+                startIcon={<LoginIcon />}
                 sx={{ fontWeight: 'medium', mr: 0.5 }}
               >
-                Reports
+                Login
               </Button>
-              <Box sx={{ 
-                borderLeft: '1px solid rgba(255, 255, 255, 0.5)', 
-                height: 24, 
-                mx: 0.5 
-              }} />
               <Button
                 color="inherit"
-                onClick={handleExportExcel}
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <TableViewIcon />}
-                disabled={loading}
-                sx={{ fontWeight: 'medium', ml: 0.5 }}
+                component={RouterLink}
+                to="/signup"
+                startIcon={<PersonAddIcon />}
+                sx={{ fontWeight: 'medium', mr: 0.5 }}
               >
-                Export
+                Sign Up
               </Button>
             </>
           )}
-        </Box>
-      </Toolbar>
-    </AppBar>
+        </>
+      );
+    }
+    return null;
+  };
+
+  return (
+    !isAuthPage || user ? (
+      <AppBar position="fixed" sx={{ boxShadow: 2, zIndex: theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          <Box 
+            component={RouterLink} 
+            to={user ? "/dashboard" : "/"} 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              textDecoration: 'none',
+              color: 'inherit',
+              flexGrow: 1
+            }}
+          >
+            <Typography
+              variant="subtitle1"
+              component="span"
+              sx={{
+                fontWeight: 'medium',
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: '0.95rem'
+              }}
+            >
+              Baplikasyon
+            </Typography>
+          </Box>
+          
+          {!user && renderAuthButtons()}
+          
+          {user && (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {/* Name */}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <AccountCircleIcon fontSize="small" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                <Typography variant="body2" sx={{ mr: 2 }}>
+                  {user.name || user.email}
+                </Typography>
+              </Box>
+              
+              {/* Reports Button */}
+              {isMobile ? (
+                <IconButton
+                  color="inherit"
+                  component={RouterLink}
+                  to="/reports"
+                  aria-label="reports"
+                  size="large"
+                  sx={{ mr: 2 }}
+                >
+                  <AssessmentIcon />
+                </IconButton>
+              ) : (
+                <Button
+                  color="inherit"
+                  component={RouterLink}
+                  to="/reports"
+                  startIcon={<AssessmentIcon />}
+                  sx={{ fontWeight: 'medium', mr: 2 }}
+                >
+                  REPORTS
+                </Button>
+              )}
+              
+              {/* Export Button */}
+              {isMobile ? (
+                <IconButton
+                  color="inherit"
+                  onClick={handleExportExcel}
+                  aria-label="export to excel"
+                  size="large"
+                  disabled={loading}
+                  sx={{ mr: 2 }}
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : <TableViewIcon />}
+                </IconButton>
+              ) : (
+                <Button
+                  color="inherit"
+                  onClick={handleExportExcel}
+                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <TableViewIcon />}
+                  disabled={loading}
+                  sx={{ fontWeight: 'medium', mr: 2 }}
+                >
+                  EXPORT
+                </Button>
+              )}
+              
+              {/* Logout Button */}
+              {isMobile ? (
+                <IconButton
+                  color="inherit"
+                  onClick={handleLogout}
+                  aria-label="logout"
+                  size="large"
+                >
+                  <LogoutIcon />
+                </IconButton>
+              ) : (
+                <Button
+                  color="inherit"
+                  onClick={handleLogout}
+                  startIcon={<LogoutIcon />}
+                  sx={{ fontWeight: 'medium' }}
+                >
+                  LOGOUT
+                </Button>
+              )}
+            </Box>
+          )}
+        </Toolbar>
+      </AppBar>
+    ) : null
   );
 };
 

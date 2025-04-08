@@ -32,6 +32,8 @@ try {
 
 // Route files
 const supportCases = require('./routes/supportCases');
+const users = require('./routes/users');
+const auth = require('./routes/auth');
 
 const app = express();
 
@@ -60,6 +62,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // Mount routers
 app.use('/api/cases', supportCases);
+app.use('/api/users', users);
+app.use('/api/auth', auth);
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

@@ -1,0 +1,7 @@
+[33mcommit b6a4f8780bfd55e8c47b0d997ff1c7a7ae8bfdd3[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: ebolarium <barisboga@gmail.com>
+Date:   Tue Apr 8 09:15:14 2025 +0300
+
+    [1;31mfallback[m server kaldırıldıs
+
+D	server-fallback.js

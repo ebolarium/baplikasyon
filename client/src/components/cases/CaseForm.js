@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import {
   Container,
   Typography,
@@ -58,7 +58,7 @@ const CaseForm = () => {
       
       const fetchCase = async () => {
         try {
-          const res = await axios.get(`/api/cases/${id}`);
+          const res = await api.get(`/cases/${id}`);
           const caseData = res.data;
           
           setFormData({
@@ -118,9 +118,9 @@ const CaseForm = () => {
     
     try {
       if (isEdit) {
-        await axios.put(`/api/cases/${id}`, formData);
+        await api.put(`/cases/${id}`, formData);
       } else {
-        await axios.post('/api/cases', formData);
+        await api.post('/cases', formData);
         
         // Set a flag in localStorage if creating a case with closed status
         if (formData.status === 'closed') {

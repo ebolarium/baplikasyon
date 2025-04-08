@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import {
   Container,
   Typography,
@@ -30,7 +30,7 @@ const Reports = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const res = await axios.get('/api/cases');
+        const res = await api.get('/cases');
         setCases(res.data);
         setLoading(false);
       } catch (err) {

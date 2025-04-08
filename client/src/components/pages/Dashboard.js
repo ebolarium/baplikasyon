@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import {
   Container,
   Typography,
@@ -73,7 +73,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const res = await axios.get('/api/cases');
+        const res = await api.get('/cases');
         const newCases = res.data;
         
         // Check for localStorage flag indicating a new closed case was just created
@@ -101,7 +101,7 @@ const Dashboard = () => {
   const toggleStatus = async (id, currentStatus) => {
     try {
       const newStatus = currentStatus === 'open' ? 'closed' : 'open';
-      const res = await axios.put(`/api/cases/${id}`, { status: newStatus });
+      const res = await api.put(`/cases/${id}`, { status: newStatus });
       
       // Update the local state with the updated case
       const updatedCases = cases.map(c => c._id === id ? res.data : c);

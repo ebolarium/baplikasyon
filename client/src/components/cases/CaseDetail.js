@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import {
   Container,
   Typography,
@@ -38,7 +38,7 @@ const CaseDetail = () => {
   useEffect(() => {
     const fetchCase = async () => {
       try {
-        const res = await axios.get(`/api/cases/${id}`);
+        const res = await api.get(`/cases/${id}`);
         setSupportCase(res.data);
         setLoading(false);
       } catch (err) {
@@ -52,7 +52,7 @@ const CaseDetail = () => {
   
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/cases/${id}`);
+      await api.delete(`/cases/${id}`);
       navigate('/');
     } catch (err) {
       setError('Failed to delete case');
@@ -63,7 +63,7 @@ const CaseDetail = () => {
   const toggleStatus = async () => {
     try {
       const newStatus = supportCase.status === 'open' ? 'closed' : 'open';
-      const res = await axios.put(`/api/cases/${id}`, { status: newStatus });
+      const res = await api.put(`/cases/${id}`, { status: newStatus });
       setSupportCase(res.data);
     } catch (err) {
       setError('Failed to update status');
