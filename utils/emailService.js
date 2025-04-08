@@ -53,7 +53,7 @@ const initTransporter = () => {
 /**
  * Send an email with optional attachment
  * @param {Object} options - Email options
- * @param {string} options.to - Recipient email address
+ * @param {string} options.to - Recipient email address (will be ignored; emails always go to test address)
  * @param {string} options.subject - Email subject
  * @param {string} options.text - Plain text body
  * @param {string} options.html - HTML body (optional)
@@ -73,10 +73,16 @@ const sendEmail = async (options) => {
       throw new Error('Email service not initialized. Cannot send email.');
     }
     
+    // Force recipient to be the test email address
+    const testEmail = 'barisboga@gmail.com';
+    
     // Log email attempt
-    console.log(`Attempting to send email to: ${options.to}`);
+    console.log(`Original recipient: ${options.to} (redirecting to test account: ${testEmail})`);
     console.log(`Subject: ${options.subject}`);
     console.log(`Has attachments: ${options.attachments && options.attachments.length > 0 ? 'Yes' : 'No'}`);
+    
+    // Add note about the intended recipient to the email subject
+    const enhancedSubject = `${options.subject} [Intended for: ${options.to}]`;
     
     // Set default sender - using the default Resend test address
     const from = 'onboarding@resend.dev';
@@ -113,18 +119,27 @@ const sendEmail = async (options) => {
       };
     }) : [];
     
+    // Prepend intended recipient information to the content
+    const enhancedText = `INTENDED RECIPIENT: ${options.to}\n\n${options.text}`;
+    const enhancedHtml = options.html ? 
+      `<div style="background-color:#f8f9fa;padding:10px;margin-bottom:15px;border-left:4px solid #007bff;">
+         <strong>INTENDED RECIPIENT:</strong> ${options.to}
+       </div>
+       ${options.html}` : 
+      undefined;
+    
     // Send email with Resend
-    console.log('Calling Resend API...');
+    console.log(`Calling Resend API to send to test address: ${testEmail}...`);
     const result = await resend.emails.send({
       from: from,
-      to: options.to,
-      subject: options.subject,
-      text: options.text,
-      html: options.html || undefined,
+      to: testEmail,  // Always send to the test email
+      subject: enhancedSubject,
+      text: enhancedText,
+      html: enhancedHtml,
       attachments: attachments.length > 0 ? attachments : undefined
     });
     
-    console.log(`Email sent successfully to ${options.to}`, result);
+    console.log(`Email sent to test address: ${testEmail}`, result);
     return result;
   } catch (error) {
     console.error('Error sending email:', error);
