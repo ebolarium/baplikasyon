@@ -1,0 +1,14 @@
+{
+  "mongoURI": "mongodb+srv://username:password@cluster0.mongodb.net/supportcases?retryWrites=true&w=majority",
+  "jwtSecret": "jwt_secret_key",
+  "mailSettings": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": false,
+    "from": "noreply@odakkimya.com.tr",
+    "auth": {
+      "user": "your-email@gmail.com",
+      "pass": "your-app-password"
+    }
+  }
+} 

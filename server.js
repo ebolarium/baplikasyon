@@ -22,6 +22,28 @@ try {
     .then(() => {
       dbConnected = true;
       console.log('MongoDB connected successfully');
+      
+      // Initialize email service and cron jobs after database connection
+      if (process.env.NODE_ENV === 'production') {
+        const { initTransporter } = require('./utils/emailService');
+        const { initCronJobs } = require('./utils/cronJobs');
+        
+        // Initialize email transporter
+        try {
+          initTransporter();
+          console.log('Email service initialized');
+        } catch (error) {
+          console.error('Error initializing email service:', error);
+        }
+        
+        // Initialize cron jobs
+        try {
+          initCronJobs();
+          console.log('Cron jobs initialized');
+        } catch (error) {
+          console.error('Error initializing cron jobs:', error);
+        }
+      }
     })
     .catch(err => {
       console.error('MongoDB connection error:', err.message);
@@ -50,6 +72,26 @@ app.get('/api/health', (req, res) => {
     env: process.env.NODE_ENV,
     dbConnected
   });
+});
+
+// Manual trigger for sending weekly reports (protected, admin only)
+app.post('/api/admin/send-weekly-reports', auth, async (req, res) => {
+  try {
+    // Ensure user is admin (implement your own admin check)
+    const user = req.user;
+    if (!user.isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized: Admin access required' });
+    }
+    
+    // Trigger weekly reports
+    const { sendWeeklyReports } = require('./utils/cronJobs');
+    await sendWeeklyReports();
+    
+    res.json({ success: true, message: 'Weekly reports job triggered' });
+  } catch (error) {
+    console.error('Error triggering weekly reports:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Dev logging middleware

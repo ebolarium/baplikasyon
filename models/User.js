@@ -21,6 +21,18 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please add a password'],
     minlength: 6
   },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  active: {
+    type: Boolean,
+    default: true
+  },
+  receiveWeeklyReports: {
+    type: Boolean,
+    default: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
