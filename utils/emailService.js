@@ -78,10 +78,8 @@ const sendEmail = async (options) => {
     console.log(`Subject: ${options.subject}`);
     console.log(`Has attachments: ${options.attachments && options.attachments.length > 0 ? 'Yes' : 'No'}`);
     
-    // Set default sender
-    const from = process.env.MAIL_FROM || 
-      (config ? config.get('mailSettings.from') : undefined) || 
-      'onboarding@resend.dev';
+    // Set default sender - using the default Resend test address
+    const from = 'onboarding@resend.dev';
     
     console.log(`Sending from: ${from}`);
     

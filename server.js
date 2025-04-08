@@ -25,11 +25,12 @@ try {
       
       // Initialize email service and cron jobs after database connection
       if (process.env.NODE_ENV === 'production') {
-        // Use Gmail service instead of Resend
+        // Use Resend service with authorized recipients
         try {
-          // For backwards compatibility, export the emailService interface
-          global.emailService = require('./utils/gmailService');
-          console.log('Gmail email service initialized');
+          // Initialize email transporter
+          const { initTransporter } = require('./utils/emailService');
+          initTransporter();
+          console.log('Resend email service initialized for authorized recipients');
         } catch (error) {
           console.error('Error initializing email service:', error);
         }

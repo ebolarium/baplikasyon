@@ -6,8 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
 
-// Get email service - use global.emailService if available (Gmail) or fall back to the local import
-const emailService = global.emailService || require('./emailService');
+// Get email service directly
+const emailService = require('./emailService');
 
 /**
  * Generate weekly report for a user and send via email
