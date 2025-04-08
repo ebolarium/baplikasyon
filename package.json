@@ -9,7 +9,8 @@
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "bash ./render-build.sh",
-    "fallback": "node server-fallback.js"
+    "fallback": "node server-fallback.js",
+    "postinstall": "npm install bcryptjs express-validator"
   },
   "repository": {
     "type": "git",
@@ -34,12 +35,14 @@
     "@mui/x-data-grid": "^7.28.3",
     "@sendgrid/mail": "^8.1.5",
     "axios": "^1.8.4",
+    "bcryptjs": "^3.0.2",
     "canvas-confetti": "^1.9.3",
     "config": "^3.3.12",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-validator": "^7.2.1",
     "googleapis": "^148.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.8.6",
