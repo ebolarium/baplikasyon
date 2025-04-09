@@ -29,7 +29,12 @@ const initTransporter = async () => {
         rejectUnauthorized: false
       },
       debug: true,
-      logger: true
+      logger: true,
+      headers: {
+        'X-Sendinblue-Track': '0', // Disable tracking
+        'X-Sendinblue-Track-Click': '0', // Disable click tracking
+        'X-Sendinblue-Track-Open': '0' // Disable open tracking
+      }
     });
     
     // Verify connection configuration
