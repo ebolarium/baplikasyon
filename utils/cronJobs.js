@@ -144,14 +144,13 @@ const sendWeeklyReports = async () => {
   try {
     console.log('Starting weekly report job...');
     
-    // Get all active users who should receive reports
+    // Get all users who should receive reports
     const users = await User.find({ 
-      active: true,
       receiveWeeklyReports: true 
     }).lean();
     
     if (!users || users.length === 0) {
-      console.log('No active users found for weekly reports');
+      console.log('No users found for weekly reports');
       return;
     }
     
@@ -300,18 +299,9 @@ const sendDailyReports = async () => {
   try {
     console.log('Starting daily report job...');
     
-    // First check all users
-    const allUsers = await User.find({}).lean();
-    console.log(`Total users in database: ${allUsers.length}`);
-    
-    // Check active users
-    const activeUsers = await User.find({ active: true }).lean();
-    console.log(`Active users: ${activeUsers.length}`);
-    
-    // Get all active users who should receive reports
+    // Get all users who should receive reports
     // Include users who haven't set receiveDailyReports preference yet (backward compatibility)
     const users = await User.find({ 
-      active: true,
       $or: [
         { receiveDailyReports: true },
         { receiveDailyReports: { $exists: false } }
@@ -319,14 +309,7 @@ const sendDailyReports = async () => {
     }).lean();
     
     if (!users || users.length === 0) {
-      console.log('No active users found for daily reports');
-      if (allUsers.length > 0) {
-        console.log('Debug info for first user:', {
-          email: allUsers[0].email,
-          active: allUsers[0].active,
-          receiveDailyReports: allUsers[0].receiveDailyReports
-        });
-      }
+      console.log('No users found for daily reports');
       return;
     }
     
