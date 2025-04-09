@@ -16,18 +16,24 @@ import {
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
   const [receiveWeeklyReports, setReceiveWeeklyReports] = useState(true);
+  const [receiveDailyReports, setReceiveDailyReports] = useState(true);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user && user.receiveWeeklyReports !== undefined) {
-      setReceiveWeeklyReports(user.receiveWeeklyReports);
-    }
+    if (user) {
+      if (user.receiveWeeklyReports !== undefined) {
+        setReceiveWeeklyReports(user.receiveWeeklyReports);
+      }
+      if (user.receiveDailyReports !== undefined) {
+        setReceiveDailyReports(user.receiveDailyReports);
+      }
 
-    // If user info doesn't have receiveWeeklyReports property, fetch it
-    if (user && user.receiveWeeklyReports === undefined) {
-      fetchUserProfile();
+      // If user info doesn't have report preferences, fetch it
+      if (user.receiveWeeklyReports === undefined || user.receiveDailyReports === undefined) {
+        fetchUserProfile();
+      }
     }
   }, [user]);
 
@@ -39,8 +45,13 @@ const Profile = () => {
       const res = await axios.get('/api/users/profile');
       
       // Update local state but keep the existing user in context
-      if (res.data && res.data.receiveWeeklyReports !== undefined) {
-        setReceiveWeeklyReports(res.data.receiveWeeklyReports);
+      if (res.data) {
+        if (res.data.receiveWeeklyReports !== undefined) {
+          setReceiveWeeklyReports(res.data.receiveWeeklyReports);
+        }
+        if (res.data.receiveDailyReports !== undefined) {
+          setReceiveDailyReports(res.data.receiveDailyReports);
+        }
         
         // Update user in context with new profile data
         setUser({ ...user, ...res.data });
@@ -63,7 +74,8 @@ const Profile = () => {
 
       // The authorization header is automatically added by setAuthToken
       const res = await axios.put('/api/users/profile', {
-        receiveWeeklyReports: newValue
+        receiveWeeklyReports: newValue,
+        receiveDailyReports: receiveDailyReports
       });
 
       if (res.data) {
@@ -78,6 +90,36 @@ const Profile = () => {
       setLoading(false);
       // Revert the toggle if update fails
       setReceiveWeeklyReports(!newValue);
+    }
+  };
+
+  const toggleDailyReports = async (event) => {
+    const newValue = event.target.checked;
+    setReceiveDailyReports(newValue);
+    
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess(false);
+
+      // The authorization header is automatically added by setAuthToken
+      const res = await axios.put('/api/users/profile', {
+        receiveWeeklyReports: receiveWeeklyReports,
+        receiveDailyReports: newValue
+      });
+
+      if (res.data) {
+        // Update user in context with new preference
+        setUser({ ...user, receiveDailyReports: newValue });
+        setSuccess(true);
+      }
+      
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to update daily report preference');
+      setLoading(false);
+      // Revert the toggle if update fails
+      setReceiveDailyReports(!newValue);
     }
   };
 
@@ -126,6 +168,17 @@ const Profile = () => {
             />
           }
           label="Receive weekly reports via email"
+        />
+        
+        <FormControlLabel
+          control={
+            <Switch
+              checked={receiveDailyReports}
+              onChange={toggleDailyReports}
+              disabled={loading}
+            />
+          }
+          label="Receive daily reports via email"
         />
         
         {loading && (
