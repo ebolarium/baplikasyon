@@ -334,8 +334,8 @@ const initCronJobs = () => {
     timezone: 'Europe/Istanbul'
   });
   
-  // Schedule daily report job for every day at 17:30
-  cron.schedule('30 17 * * *', sendDailyReports, {
+  // Schedule daily report job for every day at 23:45
+  cron.schedule('45 23 * * *', sendDailyReports, {
     timezone: 'Europe/Istanbul'
   });
   
