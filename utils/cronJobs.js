@@ -301,9 +301,13 @@ const sendDailyReports = async () => {
     console.log('Starting daily report job...');
     
     // Get all active users who should receive reports
+    // Include users who haven't set receiveDailyReports preference yet (backward compatibility)
     const users = await User.find({ 
       active: true,
-      receiveDailyReports: true 
+      $or: [
+        { receiveDailyReports: true },
+        { receiveDailyReports: { $exists: false } }
+      ]
     }).lean();
     
     if (!users || users.length === 0) {
