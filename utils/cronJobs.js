@@ -25,19 +25,27 @@ const generateAndSendWeeklyReport = async (user) => {
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
     
-    // Get cases from the last week
-    const cases = await SupportCase.find({
-      $or: [
-        // Cases created in the last week
-        { openedAt: { $gte: oneWeekAgo } },
-        // Cases updated in the last week
-        { updatedAt: { $gte: oneWeekAgo } },
-        // Open cases (regardless of when they were created)
-        { status: { $ne: 'Closed' } }
-      ]
-    })
-    .sort({ openedAt: -1 })
-    .lean();
+    // Prepare query based on user role
+    let query = {};
+    
+    // Regular users only see their own cases
+    if (!user.isAdmin) {
+      query.user = user._id;
+    }
+    
+    // Add time filters
+    query.$or = [
+      // Cases created in the last week
+      { openedAt: { $gte: oneWeekAgo } },
+      // Cases updated in the last week
+      { updatedAt: { $gte: oneWeekAgo } },
+      // Open cases (regardless of when they were created)
+      { status: { $ne: 'Closed' } }
+    ];
+    
+    const cases = await SupportCase.find(query)
+      .sort({ openedAt: -1 })
+      .lean();
     
     if (!cases || cases.length === 0) {
       console.log(`No cases found for weekly report to ${user.email}. Sending empty report notification.`);
@@ -182,17 +190,25 @@ const generateAndSendDailyReport = async (user) => {
     // Get current date for filename and email
     const dateStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
     
-    // Get cases from today
-    const cases = await SupportCase.find({
-      $or: [
-        // Cases created today
-        { openedAt: { $gte: today } },
-        // Cases updated today
-        { updatedAt: { $gte: today } }
-      ]
-    })
-    .sort({ openedAt: -1 })
-    .lean();
+    // Prepare query based on user role
+    let query = {};
+    
+    // Regular users only see their own cases
+    if (!user.isAdmin) {
+      query.user = user._id;
+    }
+    
+    // Add time filters
+    query.$or = [
+      // Cases created today
+      { openedAt: { $gte: today } },
+      // Cases updated today
+      { updatedAt: { $gte: today } }
+    ];
+    
+    const cases = await SupportCase.find(query)
+      .sort({ openedAt: -1 })
+      .lean();
     
     if (!cases || cases.length === 0) {
       console.log(`No cases found for daily report to ${user.email}. Sending empty report notification.`);
