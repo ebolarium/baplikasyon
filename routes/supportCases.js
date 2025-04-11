@@ -55,7 +55,8 @@ router.post('/', protect, async (req, res) => {
       person: req.body.person,
       topic: req.body.topic,
       details: req.body.details,
-      status: req.body.status || 'open'
+      status: req.body.status || 'open',
+      contactMethod: req.body.contactMethod || 'online'
     });
 
     // If status is closed, add closedAt timestamp
@@ -87,7 +88,7 @@ router.put('/:id', protect, async (req, res) => {
       return res.status(401).json({ msg: 'User not authorized to update this case' });
     }
 
-    const { companyName, person, topic, details, status } = req.body;
+    const { companyName, person, topic, details, status, contactMethod } = req.body;
     
     // Build case object
     const caseFields = {};
@@ -95,6 +96,7 @@ router.put('/:id', protect, async (req, res) => {
     if (person) caseFields.person = person;
     if (topic) caseFields.topic = topic;
     if (details) caseFields.details = details;
+    if (contactMethod) caseFields.contactMethod = contactMethod;
     if (status) {
       caseFields.status = status;
       // If status is being changed to closed, set closedAt

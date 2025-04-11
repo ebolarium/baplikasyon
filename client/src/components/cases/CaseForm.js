@@ -20,7 +20,9 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  InputAdornment
+  InputAdornment,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
@@ -30,13 +32,16 @@ import PersonIcon from '@mui/icons-material/Person';
 import SubjectIcon from '@mui/icons-material/Subject';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ClearIcon from '@mui/icons-material/Clear';
+import PhoneIcon from '@mui/icons-material/Phone';
+import ComputerIcon from '@mui/icons-material/Computer';
 
 const initialState = {
   companyName: '',
   person: '',
   topic: '',
   details: '',
-  status: 'open'
+  status: 'open',
+  contactMethod: 'online'
 };
 
 const CaseForm = () => {
@@ -66,7 +71,8 @@ const CaseForm = () => {
             person: caseData.person,
             topic: caseData.topic,
             details: caseData.details,
-            status: caseData.status
+            status: caseData.status,
+            contactMethod: caseData.contactMethod || 'online'
           });
           
           setFetchLoading(false);
@@ -100,6 +106,16 @@ const CaseForm = () => {
       ...formData,
       status: e.target.checked ? 'closed' : 'open'
     });
+  };
+  
+  const handleContactMethodChange = (e, newContactMethod) => {
+    if (newContactMethod !== null) {
+      console.log('Contact method changed:', newContactMethod);
+      setFormData({
+        ...formData,
+        contactMethod: newContactMethod
+      });
+    }
   };
   
   const handleClearField = (fieldName) => {
@@ -328,17 +344,40 @@ const CaseForm = () => {
                       }}
                     />
                     
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={formData.status === 'closed'}
-                          onChange={handleSwitchChange}
-                          color="primary"
-                        />
-                      }
-                      label={formData.status === 'closed' ? 'Case is Closed' : 'Mark as Closed'}
-                      sx={{ mt: 0, mb: 0 }}
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, mb: 2 }}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={formData.status === 'closed'}
+                            onChange={handleSwitchChange}
+                            color="primary"
+                          />
+                        }
+                        label={formData.status === 'closed' ? 'Case is Closed' : 'Mark as Closed'}
+                      />
+                      
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="body2" sx={{ mr: 1 }}>Contact Method:</Typography>
+                        <ToggleButtonGroup
+                          value={formData.contactMethod}
+                          exclusive
+                          onChange={handleContactMethodChange}
+                          aria-label="contact method"
+                          size="small"
+                        >
+                          <ToggleButton value="phone" aria-label="phone call">
+                            <Tooltip title="Phone Call">
+                              <PhoneIcon />
+                            </Tooltip>
+                          </ToggleButton>
+                          <ToggleButton value="online" aria-label="online session">
+                            <Tooltip title="Online Session">
+                              <ComputerIcon />
+                            </Tooltip>
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </Box>
+                    </Box>
                     
                     {/* Move buttons inside the form */}
                     <Divider sx={{ my: 0.5 }} />

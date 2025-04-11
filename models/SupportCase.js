@@ -31,6 +31,11 @@ const SupportCaseSchema = new mongoose.Schema({
     enum: ['open', 'closed'],
     default: 'open'
   },
+  contactMethod: {
+    type: String,
+    enum: ['phone', 'online'],
+    default: 'online'
+  },
   openedAt: {
     type: Date,
     default: Date.now
