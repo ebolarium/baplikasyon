@@ -344,19 +344,8 @@ const CaseForm = () => {
                       }}
                     />
                     
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, mb: 2 }}>
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={formData.status === 'closed'}
-                            onChange={handleSwitchChange}
-                            color="primary"
-                          />
-                        }
-                        label={formData.status === 'closed' ? 'Case is Closed' : 'Mark as Closed'}
-                      />
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mr: 4 }}>
                         <Typography variant="body2" sx={{ mr: 1 }}>Contact Method:</Typography>
                         <ToggleButtonGroup
                           value={formData.contactMethod}
@@ -377,6 +366,17 @@ const CaseForm = () => {
                           </ToggleButton>
                         </ToggleButtonGroup>
                       </Box>
+                      
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={formData.status === 'closed'}
+                            onChange={handleSwitchChange}
+                            color="primary"
+                          />
+                        }
+                        label={formData.status === 'closed' ? 'Case is Closed' : 'Mark as Closed'}
+                      />
                     </Box>
                     
                     {/* Move buttons inside the form */}
