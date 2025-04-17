@@ -33,7 +33,7 @@ const SupportCaseSchema = new mongoose.Schema({
   },
   contactMethod: {
     type: String,
-    enum: ['phone', 'online'],
+    enum: ['phone', 'online', 'onsite'],
     default: 'online'
   },
   openedAt: {

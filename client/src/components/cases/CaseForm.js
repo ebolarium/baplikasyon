@@ -34,6 +34,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import ClearIcon from '@mui/icons-material/Clear';
 import PhoneIcon from '@mui/icons-material/Phone';
 import ComputerIcon from '@mui/icons-material/Computer';
+import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 
 const initialState = {
   companyName: '',
@@ -362,6 +363,11 @@ const CaseForm = () => {
                           <ToggleButton value="online" aria-label="online session">
                             <Tooltip title="Online Session">
                               <ComputerIcon />
+                            </Tooltip>
+                          </ToggleButton>
+                          <ToggleButton value="onsite" aria-label="onsite visit">
+                            <Tooltip title="Onsite Visit">
+                              <DirectionsWalkIcon />
                             </Tooltip>
                           </ToggleButton>
                         </ToggleButtonGroup>
