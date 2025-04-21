@@ -130,6 +130,7 @@ export const exportCasesToExcel = async (cases, emailTo = null) => {
       'Topic': c.topic,
       'Details': c.details,
       'Status': c.status,
+      'Contact Method': c.contactMethod || 'online',
       'Opened At': new Date(c.openedAt).toLocaleString(),
       'Closed At': c.closedAt ? new Date(c.closedAt).toLocaleString() : 'N/A'
     }));
@@ -145,6 +146,7 @@ export const exportCasesToExcel = async (cases, emailTo = null) => {
       { wch: 30 }, // Topic
       { wch: 50 }, // Details
       { wch: 10 }, // Status
+      { wch: 15 }, // Contact Method
       { wch: 20 }, // Opened At
       { wch: 20 }, // Closed At
     ];
