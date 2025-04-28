@@ -32,9 +32,7 @@ const generateAndSendWeeklyReport = async (user) => {
         // Cases created in the last week
         { openedAt: { $gte: oneWeekAgo } },
         // Cases updated in the last week
-        { updatedAt: { $gte: oneWeekAgo } },
-        // Open cases (regardless of when they were created)
-        { status: { $ne: 'Closed' } }
+        { updatedAt: { $gte: oneWeekAgo } }
       ]
     };
     
