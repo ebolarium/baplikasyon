@@ -13,6 +13,8 @@ import Reports from './components/pages/Reports';
 import NotFound from './components/pages/NotFound';
 import Signup from './components/pages/Signup';
 import Login from './components/pages/Login';
+import ForgotPassword from './components/pages/ForgotPassword';
+import ResetPassword from './components/pages/ResetPassword';
 import PrivateRoute from './components/routing/PrivateRoute';
 import Profile from './components/pages/Profile';
 
@@ -114,6 +116,8 @@ function App() {
                 <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
                 
                 {/* Protected Routes */}
                 <Route 

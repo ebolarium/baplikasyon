@@ -39,7 +39,9 @@ const Navbar = () => {
   // Check if we're on an auth page (login or signup)
   const isAuthPage = location.pathname === '/' || 
                      location.pathname === '/login' || 
-                     location.pathname === '/signup';
+                     location.pathname === '/signup' ||
+                     location.pathname === '/forgot-password' ||
+                     location.pathname.startsWith('/reset-password/');
 
   const handleLogout = () => {
     logout();
