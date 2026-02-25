@@ -67,8 +67,8 @@ const LoginForm = () => {
       navigate('/dashboard');
     } catch (err) {
       setError(
-        err.response && err.response.data.message
-          ? err.response.data.message
+        err.response && (err.response.data.msg || err.response.data.message)
+          ? (err.response.data.msg || err.response.data.message)
           : 'Login failed, please check your credentials'
       );
       setLoading(false);

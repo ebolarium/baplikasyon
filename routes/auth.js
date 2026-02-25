@@ -2,7 +2,15 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { protect } = require('../middleware/auth');
+
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET is required');
+}
+
+const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '90d';
 
 // @desc    Authenticate user & get token
 // @route   POST /api/auth
@@ -17,9 +25,18 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // In a real app, you would verify the password with bcrypt
-    // For now, simple comparison (this is NOT secure for production)
-    const isMatch = password === user.password;
+    // Primary path: hashed password check
+    let isMatch = await bcrypt.compare(password, user.password);
+
+    // Backward compatibility for old plaintext passwords:
+    // if match, migrate to bcrypt hash on successful login.
+    if (!isMatch && password === user.password) {
+      isMatch = true;
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+      await user.save();
+    }
+
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
@@ -35,8 +52,8 @@ router.post('/', async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'defaultsecret', // In production, use a secure environment variable
-      { expiresIn: '1d' },
+      jwtSecret,
+      { expiresIn: jwtExpiresIn },
       (err, token) => {
         if (err) throw err;
         

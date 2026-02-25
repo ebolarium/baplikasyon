@@ -12,6 +12,10 @@ console.log('Starting server.js...');
 console.log(`Node environment: ${process.env.NODE_ENV}`);
 console.log(`MongoDB URI exists: ${!!process.env.MONGO_URI}`);
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
+
 // Connect to database
 const connectDB = require('./config/db');
 let dbConnected = false;
@@ -25,13 +29,13 @@ try {
       
       // Initialize email service and cron jobs after database connection
       if (process.env.NODE_ENV === 'production') {
-        // Use SMTP service for email delivery
+        // Use Resend service for email delivery
         (async () => {
           try {
-            // Initialize email transporter
+            // Initialize email service client
             const { initTransporter } = require('./utils/emailService');
             await initTransporter();
-            console.log('SMTP email service initialized');
+            console.log('Resend email service initialized');
             
             // Initialize cron jobs after email is set up
             try {
@@ -58,6 +62,7 @@ try {
 const supportCases = require('./routes/supportCases');
 const users = require('./routes/users');
 const auth = require('./routes/auth');
+const { protect } = require('./middleware/auth');
 
 const app = express();
 
@@ -77,11 +82,14 @@ app.get('/api/health', (req, res) => {
 });
 
 // Manual trigger for sending weekly reports (protected, admin only)
-app.post('/api/admin/send-weekly-reports', auth, async (req, res) => {
+app.post('/api/admin/send-weekly-reports', protect, async (req, res) => {
   try {
-    // Ensure user is admin (implement your own admin check)
-    const user = req.user;
-    if (!user.isAdmin) {
+    const allowedAdminEmails = (process.env.ADMIN_EMAILS || '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (!allowedAdminEmails.includes((req.user.email || '').toLowerCase())) {
       return res.status(403).json({ error: 'Unauthorized: Admin access required' });
     }
     

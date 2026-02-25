@@ -25,7 +25,8 @@ const SignupForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    inviteCode: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -164,6 +165,17 @@ const SignupForm = () => {
             </InputAdornment>
           )
         }}
+      />
+
+      <TextField
+        name="inviteCode"
+        label="Invite Code (Optional)"
+        value={formData.inviteCode}
+        onChange={handleChange}
+        fullWidth
+        margin="normal"
+        variant="outlined"
+        helperText="If the server has invite mode enabled, this field is required."
       />
       
       <Button

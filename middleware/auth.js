@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET is required');
+}
+
 // Protect routes
 const protect = async (req, res, next) => {
   let token;
@@ -15,7 +20,7 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
 
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret');
+      const decoded = jwt.verify(token, jwtSecret);
 
       // Add user to request
       req.user = await User.findById(decoded.user.id).select('-password');

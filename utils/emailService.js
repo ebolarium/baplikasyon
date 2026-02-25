@@ -1,58 +1,34 @@
-const nodemailer = require('nodemailer');
 const fs = require('fs');
+const { Resend } = require('resend');
 
-// Initialize email transporter
-let transporter = null;
+// Initialize Resend client
+let resendClient = null;
 let initialized = false;
 
 /**
- * Initialize SMTP transporter with Brevo credentials
+ * Initialize Resend client
  */
 const initTransporter = async () => {
   // Only initialize once
   if (initialized) return;
   
   try {
-    console.log('Setting up SMTP transporter...');
-    
-    // Create transporter with SMTP credentials
-    transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: '89e1fd001@smtp-brevo.com',
-        pass: 'T6G2tOzdHbCmfS5V'
-      },
-      tls: {
-        // do not fail on invalid certs
-        rejectUnauthorized: false
-      },
-      debug: true,
-      logger: true,
-      headers: {
-        'X-Sendinblue-Track': '0', // Disable tracking
-        'X-Sendinblue-Track-Click': '0', // Disable click tracking
-        'X-Sendinblue-Track-Open': '0' // Disable open tracking
-      }
-    });
-    
-    // Verify connection configuration
-    console.log('Verifying SMTP connection...');
-    try {
-      await transporter.verify();
-      console.log('SMTP connection verified successfully!');
-    } catch (verifyError) {
-      console.error('SMTP connection verification failed:', verifyError);
-      throw verifyError;
+    console.log('Setting up Resend client...');
+
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const resendFrom = process.env.RESEND_FROM;
+
+    if (!resendApiKey || !resendFrom) {
+      throw new Error('RESEND_API_KEY and RESEND_FROM are required');
     }
-    
-    console.log('SMTP transporter initialized successfully');
+
+    resendClient = new Resend(resendApiKey);
+    console.log('Resend client initialized successfully');
     initialized = true;
   } catch (error) {
-    console.error('Error initializing SMTP transporter:', error);
+    console.error('Error initializing Resend client:', error);
     initialized = false;
-    transporter = null;
+    resendClient = null;
   }
 };
 
@@ -74,7 +50,7 @@ const sendEmail = async (options) => {
       await initTransporter();
     }
     
-    if (!initialized || !transporter) {
+    if (!initialized || !resendClient) {
       console.error('Email service initialization failed. Cannot send email.');
       throw new Error('Email service not initialized. Cannot send email.');
     }
@@ -84,39 +60,35 @@ const sendEmail = async (options) => {
     console.log(`Subject: ${options.subject}`);
     console.log(`Has attachments: ${options.attachments && options.attachments.length > 0 ? 'Yes' : 'No'}`);
     
-    // Set default sender
-    const from = {
-      name: 'Odak Kimya Destek',
-      address: 'baris@odakkimya.com.tr'
-    };
-    
-    console.log(`Sending from: ${from.address} (${from.name})`);
-    
-    // Format attachments for nodemailer if needed
+    // Format attachments for Resend if needed
     const attachments = [];
     if (options.attachments && options.attachments.length > 0) {
       for (const attachment of options.attachments) {
-        if (attachment.path) {
-          // If it has a path, add it directly
-          console.log(`Including attachment from path: ${attachment.path}`);
-          attachments.push({
-            filename: attachment.filename,
-            path: attachment.path
-          });
-        } else if (attachment.content) {
-          // If it has content as Buffer
+        if (!attachment || !attachment.filename) {
+          continue;
+        }
+
+        if (attachment.content) {
           console.log(`Including attachment from buffer, filename: ${attachment.filename}`);
           attachments.push({
             filename: attachment.filename,
-            content: attachment.content
+            content: Buffer.isBuffer(attachment.content)
+              ? attachment.content.toString('base64')
+              : Buffer.from(attachment.content).toString('base64')
+          });
+        } else if (attachment.path) {
+          console.log(`Including attachment from path: ${attachment.path}`);
+          const fileBuffer = fs.readFileSync(attachment.path);
+          attachments.push({
+            filename: attachment.filename,
+            content: fileBuffer.toString('base64')
           });
         }
       }
     }
     
-    // Prepare email options
     const mailOptions = {
-      from: `"${from.name}" <${from.address}>`,
+      from: process.env.RESEND_FROM,
       to: options.to,
       subject: options.subject,
       text: options.text,
@@ -128,9 +100,12 @@ const sendEmail = async (options) => {
       mailOptions.attachments = attachments;
     }
     
-    // Send email with nodemailer
-    console.log('Sending email via SMTP...', mailOptions);
-    const info = await transporter.sendMail(mailOptions);
+    console.log('Sending email via Resend...');
+    const info = await resendClient.emails.send(mailOptions);
+
+    if (info && info.error) {
+      throw new Error(info.error.message || 'Resend email send failed');
+    }
     
     console.log(`Email sent successfully to ${options.to}`, info);
     return info;

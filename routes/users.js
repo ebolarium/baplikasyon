@@ -3,62 +3,86 @@ const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { check, validationResult } = require('express-validator');
 const { protect } = require('../middleware/auth');
+
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET is required');
+}
+
+const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '90d';
 
 // @desc    Register a user
 // @route   POST /api/users
 // @access  Public
 router.post('/', async (req, res) => {
   try {
-    console.log('Registration attempt:', req.body);
-    const { name, email, password } = req.body;
+    const { name, email, password, inviteCode } = req.body;
 
     // Check if all required fields are present
     if (!name || !email || !password) {
-      console.log('Missing required fields:', { name: !!name, email: !!email, password: !!password });
       return res.status(400).json({ msg: 'Please provide name, email and password' });
+    }
+
+    // Optional invite-only signup
+    if (process.env.SIGNUP_INVITE_CODE && inviteCode !== process.env.SIGNUP_INVITE_CODE) {
+      return res.status(403).json({ msg: 'Invalid invite code' });
     }
 
     // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
-      console.log('User already exists with email:', email);
       return res.status(400).json({ msg: 'User already exists' });
     }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user
     user = new User({
       name,
       email,
-      password // In a real app, you would hash this password
+      password: hashedPassword
     });
 
-    console.log('Attempting to save user to database');
     await user.save();
-    console.log('User saved successfully with ID:', user._id);
 
-    // Return user without password
-    const userResponse = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt
+    const payload = {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
     };
 
-    res.json(userResponse);
+    jwt.sign(
+      payload,
+      jwtSecret,
+      { expiresIn: jwtExpiresIn },
+      (err, token) => {
+        if (err) throw err;
+
+        res.json({
+          token,
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt
+          }
+        });
+      }
+    );
   } catch (err) {
     console.error('Error in user registration:');
-    console.error(err);
+    console.error(err.message);
     
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map(val => val.message);
-      console.log('Validation error:', messages);
       return res.status(400).json({ msg: messages.join(', ') });
     }
     
     if (err.code === 11000) {
-      console.log('Duplicate key error');
       return res.status(400).json({ msg: 'Email already in use' });
     }
     
