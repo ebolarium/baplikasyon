@@ -205,7 +205,7 @@ export const exportCasesToExcel = async (cases, emailTo = null) => {
 export const exportCasesToEmail = async () => {
   try {
     // Call the export-email endpoint to generate and send Excel via email
-    const response = await api.post('/cases/export-email');
+    await api.post('/cases/export-email');
     
     // Show success message
     alert('Destek vakaları raporu e-posta adresinize gönderilmiştir. Lütfen e-posta kutunuzu kontrol ediniz.');

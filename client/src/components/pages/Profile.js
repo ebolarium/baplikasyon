@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../../App';
 import axios from 'axios';
 import {
@@ -21,23 +21,7 @@ const Profile = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      if (user.receiveWeeklyReports !== undefined) {
-        setReceiveWeeklyReports(user.receiveWeeklyReports);
-      }
-      if (user.receiveDailyReports !== undefined) {
-        setReceiveDailyReports(user.receiveDailyReports);
-      }
-
-      // If user info doesn't have report preferences, fetch it
-      if (user.receiveWeeklyReports === undefined || user.receiveDailyReports === undefined) {
-        fetchUserProfile();
-      }
-    }
-  }, [user]);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -61,7 +45,23 @@ const Profile = () => {
       setError('Failed to load profile');
       setLoading(false);
     }
-  };
+  }, [setUser, user]);
+
+  useEffect(() => {
+    if (user) {
+      if (user.receiveWeeklyReports !== undefined) {
+        setReceiveWeeklyReports(user.receiveWeeklyReports);
+      }
+      if (user.receiveDailyReports !== undefined) {
+        setReceiveDailyReports(user.receiveDailyReports);
+      }
+
+      // If user info doesn't have report preferences, fetch it
+      if (user.receiveWeeklyReports === undefined || user.receiveDailyReports === undefined) {
+        fetchUserProfile();
+      }
+    }
+  }, [fetchUserProfile, user]);
 
   const toggleWeeklyReports = async (event) => {
     const newValue = event.target.checked;

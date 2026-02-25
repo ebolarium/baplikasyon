@@ -17,8 +17,7 @@ import {
   DialogTitle,
   Grid,
   Card,
-  CardContent,
-  useTheme
+  CardContent
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -33,7 +32,6 @@ const CaseDetail = () => {
   
   const { id } = useParams();
   const navigate = useNavigate();
-  const theme = useTheme();
   
   useEffect(() => {
     const fetchCase = async () => {

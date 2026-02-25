@@ -4,7 +4,7 @@ import { AuthContext } from '../../App';
 
 // Component for protecting routes that require authentication
 const PrivateRoute = ({ children }) => {
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   
   // If not authenticated, redirect to login page
   if (!isAuthenticated) {

@@ -28,7 +28,6 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
-  const [exportType, setExportType] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
@@ -60,38 +59,32 @@ const Navbar = () => {
   const handleExportExcel = async () => {
     try {
       setLoading(true);
-      setExportType('download');
       handleMenuClose();
       
       // Use the export function that handles authenticated requests
       await exportUserCasesToExcel();
       
       setLoading(false);
-      setExportType('');
     } catch (error) {
       console.error('Error exporting cases:', error);
       alert('Failed to export cases. Please try again.');
       setLoading(false);
-      setExportType('');
     }
   };
   
   const handleEmailExport = async () => {
     try {
       setLoading(true);
-      setExportType('email');
       handleMenuClose();
       
       // Use the new email export function
       await exportCasesToEmail();
       
       setLoading(false);
-      setExportType('');
     } catch (error) {
       console.error('Error emailing cases:', error);
       alert('Failed to email cases. Please try again.');
       setLoading(false);
-      setExportType('');
     }
   };
 

@@ -8,16 +8,13 @@ import {
   TextField,
   Button,
   CircularProgress,
-  Paper,
   FormControlLabel,
   Switch,
   Alert,
   Card,
   CardContent,
   Divider,
-  useTheme,
   Grid,
-  Chip,
   IconButton,
   Tooltip,
   InputAdornment,
@@ -55,7 +52,6 @@ const CaseForm = () => {
   const companyInputRef = useRef(null);
   const navigate = useNavigate();
   const { id } = useParams();
-  const theme = useTheme();
   
   useEffect(() => {
     if (id) {
